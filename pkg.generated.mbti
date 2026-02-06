@@ -1,0 +1,1618 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "sennenki/tsparser"
+
+// Values
+
+// Errors
+pub suberror ParseError {
+  ParseError(span~ : Span, kind~ : ParseErrorKind)
+}
+pub impl Eq for ParseError
+pub impl Show for ParseError
+
+// Types and methods
+pub enum AccessibilityModifier {
+  Public
+  Private
+  Protected
+}
+pub impl Eq for AccessibilityModifier
+pub impl Show for AccessibilityModifier
+
+pub enum ArrayBindingElement {
+  BindingElement(BindingElement)
+  OmittedExpr
+}
+pub impl Eq for ArrayBindingElement
+pub impl Show for ArrayBindingElement
+
+pub struct ArrowFunction {
+  is_async : Bool
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+  body : ArrowFunctionBody
+}
+pub fn ArrowFunction::new(Bool, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?, ArrowFunctionBody) -> Self
+pub impl Eq for ArrowFunction
+pub impl Show for ArrowFunction
+
+pub enum ArrowFunctionBody {
+  Expr(Expr)
+  Block(Array[Stmt])
+}
+pub impl Eq for ArrowFunctionBody
+pub impl Show for ArrowFunctionBody
+
+pub struct AsExpr {
+  expression : Expr
+  type_node : TypeNode
+}
+pub fn AsExpr::new(Expr, TypeNode) -> Self
+pub impl Eq for AsExpr
+pub impl Show for AsExpr
+
+pub struct BigIntLiteral {
+  text : String
+  is_unterminated : Bool
+  has_extended_unicode_escape : Bool
+  span : Span
+}
+pub fn BigIntLiteral::new(String, Span) -> Self
+pub impl Eq for BigIntLiteral
+pub impl Show for BigIntLiteral
+
+pub struct BinaryExpr {
+  left : Expr
+  operator : BinaryOperator
+  right : Expr
+}
+pub fn BinaryExpr::new(Expr, BinaryOperator, Expr) -> Self
+pub impl Eq for BinaryExpr
+pub impl Show for BinaryExpr
+
+pub enum BinaryOperator {
+  Equals
+  PlusEquals
+  MinusEquals
+  AsteriskEquals
+  AsteriskAsteriskEquals
+  SlashEquals
+  PercentEquals
+  AmpersandEquals
+  BarEquals
+  CaretEquals
+  ShiftLeftEquals
+  ShiftRightEquals
+  ShiftRightUnsignedEquals
+  AmpersandAmpersandEquals
+  BarBarEquals
+  QuestionQuestionEquals
+  Plus
+  Minus
+  Asterisk
+  Slash
+  Percent
+  AsteriskAsterisk
+  ShiftLeft
+  ShiftRight
+  ShiftRightUnsigned
+  LessThan
+  GreaterThan
+  LessThanEquals
+  GreaterThanEquals
+  In
+  InstanceOf
+  EqualsEquals
+  ExclamationEquals
+  EqualsEqualsEquals
+  ExclamationEqualsEquals
+  BitwiseAnd
+  BitwiseXor
+  BitwiseOr
+  AmpersandAmpersand
+  BarBar
+  QuestionQuestion
+}
+pub impl Eq for BinaryOperator
+pub impl Show for BinaryOperator
+
+pub struct BindingElement {
+  property_name : PropertyName?
+  is_rest : Bool
+  name : BindingName
+  initializer : Expr?
+}
+pub fn BindingElement::new(BindingName, PropertyName?, Bool, Expr?) -> Self
+pub impl Eq for BindingElement
+pub impl Show for BindingElement
+
+pub enum BindingName {
+  Identifier(Identifier)
+  ObjectBindingPattern(NodeArray[BindingElement])
+  ArrayBindingPattern(NodeArray[ArrayBindingElement])
+}
+pub impl Eq for BindingName
+pub impl Show for BindingName
+
+pub struct CallExpr {
+  expression : Expr
+  is_null_coalescing : Bool
+  type_arguments : NodeArray[TypeNode]?
+  arguments : NodeArray[Expr]
+}
+pub fn CallExpr::new(Expr, NodeArray[TypeNode]?, NodeArray[Expr], Bool) -> Self
+pub impl Eq for CallExpr
+pub impl Show for CallExpr
+
+pub struct CallSignatureDecl {
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+}
+pub fn CallSignatureDecl::new(NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?) -> Self
+pub impl Eq for CallSignatureDecl
+pub impl Show for CallSignatureDecl
+
+pub struct CaseBlock {
+  clauses : NodeArray[CaseOrDefaultClause]
+}
+pub fn CaseBlock::new(NodeArray[CaseOrDefaultClause]) -> Self
+pub impl Eq for CaseBlock
+pub impl Show for CaseBlock
+
+pub struct CaseClause {
+  expression : Expr
+  stmts : NodeArray[Stmt]
+}
+pub fn CaseClause::new(Expr, NodeArray[Stmt]) -> Self
+pub impl Eq for CaseClause
+pub impl Show for CaseClause
+
+pub enum CaseOrDefaultClause {
+  CaseClause(CaseClause)
+  DefaultClause(NodeArray[Stmt])
+}
+pub impl Eq for CaseOrDefaultClause
+pub impl Show for CaseOrDefaultClause
+
+pub struct CatchClause {
+  variable_declaration : VariableDecl?
+  block : Array[Stmt]
+}
+pub fn CatchClause::new(VariableDecl?, Array[Stmt]) -> Self
+pub impl Eq for CatchClause
+pub impl Show for CatchClause
+
+pub struct ClassDecl {
+  decorators : NodeArray[Expr]?
+  modifiers : TopLevelModifiers
+  name : Identifier?
+  type_parameters : NodeArray[TypeParameterDecl]?
+  heritage_clauses : NodeArray[HeritageClause]?
+  members : NodeArray[ClassElement]
+}
+pub fn ClassDecl::new(NodeArray[Expr]?, TopLevelModifiers, Identifier?, NodeArray[TypeParameterDecl]?, NodeArray[HeritageClause]?, NodeArray[ClassElement]) -> Self
+pub impl Eq for ClassDecl
+pub impl Show for ClassDecl
+
+pub enum ClassElement {
+  PropertyDecl(PropertyDecl)
+  MethodDecl(MethodDecl)
+  Constructor(ConstructorDecl)
+  GetAccessor(GetAccessorDecl)
+  SetAccessor(SetAccessorDecl)
+  IndexSignature(IndexSignatureDecl)
+  SemicolonClassElement
+  ClassStaticBlockDecl(ClassStaticBlockDecl)
+}
+pub impl Eq for ClassElement
+pub impl Show for ClassElement
+
+pub struct ClassExpr {
+  name : Identifier?
+  type_parameters : NodeArray[TypeParameterDecl]?
+  heritage_clauses : NodeArray[HeritageClause]?
+  members : NodeArray[ClassElement]
+}
+pub fn ClassExpr::new(Identifier?, NodeArray[TypeParameterDecl]?, NodeArray[HeritageClause]?, NodeArray[ClassElement]) -> Self
+pub impl Eq for ClassExpr
+pub impl Show for ClassExpr
+
+pub struct ClassMemberModifiers {
+  accessibility : AccessibilityModifier?
+  is_static : Bool
+  is_abstract : Bool
+  is_readonly : Bool
+  is_override : Bool
+  is_accessor : Bool
+  is_async : Bool
+}
+pub fn ClassMemberModifiers::new() -> Self
+pub impl Default for ClassMemberModifiers
+pub impl Eq for ClassMemberModifiers
+pub impl Show for ClassMemberModifiers
+
+pub struct ClassStaticBlockDecl {
+  body : Array[Stmt]
+}
+pub fn ClassStaticBlockDecl::new(Array[Stmt]) -> Self
+pub impl Eq for ClassStaticBlockDecl
+pub impl Show for ClassStaticBlockDecl
+
+pub struct ConditionalExpr {
+  condition : Expr
+  when_true : Expr
+  when_false : Expr
+}
+pub fn ConditionalExpr::new(Expr, Expr, Expr) -> Self
+pub impl Eq for ConditionalExpr
+pub impl Show for ConditionalExpr
+
+pub struct ConditionalTypeNode {
+  check_type : TypeNode
+  extends_type : TypeNode
+  true_type : TypeNode
+  false_type : TypeNode
+}
+pub fn ConditionalTypeNode::new(TypeNode, TypeNode, TypeNode, TypeNode) -> Self
+pub impl Eq for ConditionalTypeNode
+pub impl Show for ConditionalTypeNode
+
+pub struct ConstructSignatureDecl {
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+}
+pub fn ConstructSignatureDecl::new(NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?) -> Self
+pub impl Eq for ConstructSignatureDecl
+pub impl Show for ConstructSignatureDecl
+
+pub struct ConstructorDecl {
+  modifiers : ClassMemberModifiers
+  parameters : NodeArray[ParameterDecl]
+  body : Array[Stmt]?
+}
+pub fn ConstructorDecl::new(ClassMemberModifiers, NodeArray[ParameterDecl], Array[Stmt]?) -> Self
+pub impl Eq for ConstructorDecl
+pub impl Show for ConstructorDecl
+
+pub struct ConstructorTypeNode {
+  is_abstract : Bool
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+}
+pub fn ConstructorTypeNode::new(Bool, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?) -> Self
+pub impl Eq for ConstructorTypeNode
+pub impl Show for ConstructorTypeNode
+
+pub struct DoStmt {
+  statement : Stmt
+  expression : Expr
+}
+pub fn DoStmt::new(Stmt, Expr) -> Self
+pub impl Eq for DoStmt
+pub impl Show for DoStmt
+
+pub struct ElementAccessExpr {
+  expression : Expr
+  is_null_coalescing : Bool
+  argument_expression : Expr
+}
+pub fn ElementAccessExpr::new(Expr, Expr, Bool) -> Self
+pub impl Eq for ElementAccessExpr
+pub impl Show for ElementAccessExpr
+
+pub enum EntityName {
+  Identifier(Identifier)
+  QualifiedName(QualifiedName)
+}
+pub impl Eq for EntityName
+pub impl Show for EntityName
+
+pub struct EnumDecl {
+  modifiers : TopLevelModifiers
+  name : Identifier
+  members : NodeArray[EnumMember]
+}
+pub fn EnumDecl::new(TopLevelModifiers, Identifier, NodeArray[EnumMember]) -> Self
+pub impl Eq for EnumDecl
+pub impl Show for EnumDecl
+
+pub struct EnumMember {
+  name : PropertyName
+  initializer : Expr?
+}
+pub fn EnumMember::new(PropertyName, Expr?) -> Self
+pub impl Eq for EnumMember
+pub impl Show for EnumMember
+
+pub struct ExportAssignment {
+  modifiers : NodeArray[ModifierKind]?
+  is_export_equals : Bool
+  expression : Expr
+}
+pub fn ExportAssignment::new(NodeArray[ModifierKind]?, Bool, Expr) -> Self
+pub impl Eq for ExportAssignment
+pub impl Show for ExportAssignment
+
+pub struct ExportDecl {
+  modifiers : NodeArray[ModifierKind]?
+  is_type_only : Bool
+  export_clause : NamedExportBindings?
+  module_specifier : Expr?
+  attributes : ImportAttributes?
+}
+pub fn ExportDecl::new(NodeArray[ModifierKind]?, Bool, NamedExportBindings?, Expr?, ImportAttributes?) -> Self
+pub impl Eq for ExportDecl
+pub impl Show for ExportDecl
+
+pub struct ExportSpecifier {
+  is_type_only : Bool
+  property_name : Identifier?
+  name : Identifier
+}
+pub fn ExportSpecifier::new(Bool, Identifier?, Identifier) -> Self
+pub impl Eq for ExportSpecifier
+pub impl Show for ExportSpecifier
+
+pub struct Expr {
+  kind : ExprKind
+  span : Span
+}
+pub fn Expr::new(ExprKind, Span) -> Self
+pub impl Eq for Expr
+pub impl Show for Expr
+
+pub enum ExprKind {
+  Identifier(Identifier)
+  NumericLiteral(NumericLiteral)
+  StringLiteral(StringLiteral)
+  BinaryExpr(BinaryExpr)
+  PrefixUnaryExpr(PrefixUnaryExpr)
+  PostfixUnaryExpr(PostfixUnaryExpr)
+  PropertyAccessExpr(PropertyAccessExpr)
+  ElementAccessExpr(ElementAccessExpr)
+  CallExpr(CallExpr)
+  NewExpr(NewExpr)
+  ImportExpr(NodeArray[Expr])
+  ArrayLiteralExpr(NodeArray[Expr])
+  ObjectLiteralExpr(NodeArray[ObjectLiteralElementLike])
+  FunctionExpr(FunctionExpr)
+  ArrowFunction(ArrowFunction)
+  ConditionalExpr(ConditionalExpr)
+  TemplateExpr(TemplateExpr)
+  TaggedTemplateExpr(TaggedTemplateExpr)
+  AsExpr(AsExpr)
+  ParenthesizedExpr(Expr)
+  SatisfiesExpr(SatisfiesExpr)
+  TypeAssertionExpr(TypeAssertionExpr)
+  NonNullExpr(Expr)
+  MetaProperty(MetaPropertyKind)
+  CommaListExpr(NodeArray[Expr])
+  ThisExpr
+  SuperExpr
+  NullLiteral
+  TrueLiteral
+  FalseLiteral
+  RegularExprLiteral(RegularExprLiteral)
+  NoSubstitutionTemplateLiteral(NoSubstitutionTemplateLiteral)
+  DeleteExpr(Expr)
+  TypeOfExpr(Expr)
+  VoidExpr(Expr)
+  AwaitExpr(Expr)
+  YieldExpr(YieldExpr)
+  SpreadElement(Expr)
+  OmittedExpr
+  ClassExpr(ClassExpr)
+}
+pub impl Eq for ExprKind
+pub impl Show for ExprKind
+
+pub struct ExprWithTypeArguments {
+  expression : Expr
+  type_arguments : NodeArray[TypeNode]?
+}
+pub fn ExprWithTypeArguments::new(Expr, NodeArray[TypeNode]?) -> Self
+pub impl Eq for ExprWithTypeArguments
+pub impl Show for ExprWithTypeArguments
+
+pub struct ForInStmt {
+  initializer : ForInitializer
+  expression : Expr
+  statement : Stmt
+}
+pub fn ForInStmt::new(ForInitializer, Expr, Stmt) -> Self
+pub impl Eq for ForInStmt
+pub impl Show for ForInStmt
+
+pub enum ForInitializer {
+  VariableDeclList(NodeArray[VariableDecl])
+  UsingDeclList(NodeArray[UsingDecl], Bool)
+  Expr(Expr)
+}
+pub impl Eq for ForInitializer
+pub impl Show for ForInitializer
+
+pub struct ForOfStmt {
+  initializer : ForInitializer
+  expression : Expr
+  statement : Stmt
+  is_await : Bool
+}
+pub fn ForOfStmt::new(ForInitializer, Expr, Stmt, Bool) -> Self
+pub impl Eq for ForOfStmt
+pub impl Show for ForOfStmt
+
+pub struct ForStmt {
+  initializer : ForInitializer?
+  condition : Expr?
+  incrementor : Expr?
+  statement : Stmt
+}
+pub fn ForStmt::new(ForInitializer?, Expr?, Expr?, Stmt) -> Self
+pub impl Eq for ForStmt
+pub impl Show for ForStmt
+
+pub struct FunctionDecl {
+  modifiers : TopLevelModifiers
+  is_async : Bool
+  is_generator : Bool
+  name : Identifier?
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+  body : Array[Stmt]?
+}
+pub fn FunctionDecl::new(TopLevelModifiers, Bool, Bool, Identifier?, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
+pub impl Eq for FunctionDecl
+pub impl Show for FunctionDecl
+
+pub struct FunctionExpr {
+  is_async : Bool
+  is_generator : Bool
+  name : Identifier?
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+  body : Array[Stmt]?
+}
+pub fn FunctionExpr::new(Bool, Bool, Identifier?, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
+pub impl Eq for FunctionExpr
+pub impl Show for FunctionExpr
+
+pub struct FunctionTypeNode {
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+}
+pub fn FunctionTypeNode::new(NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?) -> Self
+pub impl Eq for FunctionTypeNode
+pub impl Show for FunctionTypeNode
+
+pub struct GetAccessorDecl {
+  decorators : NodeArray[Expr]?
+  modifiers : ClassMemberModifiers
+  name : PropertyName
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+  body : Array[Stmt]?
+}
+pub fn GetAccessorDecl::new(NodeArray[Expr]?, ClassMemberModifiers, PropertyName, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
+pub impl Eq for GetAccessorDecl
+pub impl Show for GetAccessorDecl
+
+pub struct HeritageClause {
+  kind : HeritageKind
+  types : NodeArray[ExprWithTypeArguments]
+}
+pub fn HeritageClause::new(HeritageKind, NodeArray[ExprWithTypeArguments]) -> Self
+pub impl Eq for HeritageClause
+pub impl Show for HeritageClause
+
+pub enum HeritageKind {
+  Extends
+  Implements
+}
+pub impl Eq for HeritageKind
+pub impl Show for HeritageKind
+
+pub struct Identifier {
+  text : String
+  has_extended_unicode_escape : Bool
+  is_in_jsdoc_namespace : Bool
+  span : Span
+}
+pub fn Identifier::new(String, Span) -> Self
+pub impl Eq for Identifier
+pub impl Show for Identifier
+
+pub struct IfStmt {
+  expression : Expr
+  then_statement : Stmt
+  else_statement : Stmt?
+}
+pub fn IfStmt::new(Expr, Stmt, Stmt?) -> Self
+pub impl Eq for IfStmt
+pub impl Show for IfStmt
+
+pub struct ImportAttribute {
+  name : ImportAttributeName
+  value : Expr
+}
+pub fn ImportAttribute::new(ImportAttributeName, Expr) -> Self
+pub impl Eq for ImportAttribute
+pub impl Show for ImportAttribute
+
+pub enum ImportAttributeName {
+  Identifier(Identifier)
+  StringLiteral(StringLiteral)
+}
+pub impl Eq for ImportAttributeName
+pub impl Show for ImportAttributeName
+
+pub struct ImportAttributes {
+  elements : NodeArray[ImportAttribute]
+}
+pub fn ImportAttributes::new(NodeArray[ImportAttribute]) -> Self
+pub impl Eq for ImportAttributes
+pub impl Show for ImportAttributes
+
+pub struct ImportClause {
+  is_type_only : Bool
+  name : Identifier?
+  named_bindings : NamedImportBindings?
+}
+pub fn ImportClause::new(Bool, Identifier?, NamedImportBindings?) -> Self
+pub impl Eq for ImportClause
+pub impl Show for ImportClause
+
+pub struct ImportDecl {
+  import_clause : ImportClause?
+  module_specifier : Expr
+  attributes : ImportAttributes?
+  phase : ImportPhase
+}
+pub fn ImportDecl::new(ImportClause?, Expr, ImportAttributes?, ImportPhase) -> Self
+pub impl Eq for ImportDecl
+pub impl Show for ImportDecl
+
+pub struct ImportEqualsDecl {
+  is_type_only : Bool
+  name : Identifier
+  module_ref : ImportEqualsModuleRef
+}
+pub fn ImportEqualsDecl::new(Bool, Identifier, ImportEqualsModuleRef) -> Self
+pub impl Eq for ImportEqualsDecl
+pub impl Show for ImportEqualsDecl
+
+pub enum ImportEqualsModuleRef {
+  EntityName(EntityName)
+  ExternalModuleRef(Expr)
+}
+pub impl Eq for ImportEqualsModuleRef
+pub impl Show for ImportEqualsModuleRef
+
+pub enum ImportPhase {
+  Normal
+  Type
+  Defer
+}
+pub impl Eq for ImportPhase
+pub impl Show for ImportPhase
+
+pub struct ImportSpecifier {
+  is_type_only : Bool
+  property_name : Identifier?
+  name : Identifier
+}
+pub fn ImportSpecifier::new(Bool, Identifier?, Identifier) -> Self
+pub impl Eq for ImportSpecifier
+pub impl Show for ImportSpecifier
+
+pub struct ImportTypeNode {
+  argument : Expr
+  qualifier : EntityName?
+  type_arguments : NodeArray[TypeNode]?
+}
+pub fn ImportTypeNode::new(Expr, EntityName?, NodeArray[TypeNode]?) -> Self
+pub impl Eq for ImportTypeNode
+pub impl Show for ImportTypeNode
+
+pub struct IndexSignatureDecl {
+  is_readonly : Bool
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode
+}
+pub fn IndexSignatureDecl::new(Bool, NodeArray[ParameterDecl], TypeNode) -> Self
+pub impl Eq for IndexSignatureDecl
+pub impl Show for IndexSignatureDecl
+
+pub struct IndexedAccessTypeNode {
+  object_type : TypeNode
+  index_type : TypeNode
+}
+pub fn IndexedAccessTypeNode::new(TypeNode, TypeNode) -> Self
+pub impl Eq for IndexedAccessTypeNode
+pub impl Show for IndexedAccessTypeNode
+
+pub struct InterfaceDecl {
+  modifiers : TopLevelModifiers
+  name : Identifier
+  type_parameters : NodeArray[TypeParameterDecl]?
+  heritage_clauses : NodeArray[HeritageClause]?
+  members : NodeArray[TypeElement]
+}
+pub fn InterfaceDecl::new(TopLevelModifiers, Identifier, NodeArray[TypeParameterDecl]?, NodeArray[HeritageClause]?, NodeArray[TypeElement]) -> Self
+pub impl Eq for InterfaceDecl
+pub impl Show for InterfaceDecl
+
+pub struct LabeledStmt {
+  label : Identifier
+  statement : Stmt
+}
+pub fn LabeledStmt::new(Identifier, Stmt) -> Self
+pub impl Eq for LabeledStmt
+pub impl Show for LabeledStmt
+
+pub enum LexKind {
+  Identifier(String)
+  PrivateIdentifier(String)
+  Number(String)
+  String(String)
+  Regex(String)
+  NoSubTemplate(String, String)
+  TemplateHead(String, String)
+  TemplateMiddle(String, String)
+  TemplateTail(String, String)
+  KeywordLet
+  KeywordConst
+  KeywordVar
+  KeywordUsing
+  KeywordFunction
+  KeywordReturn
+  KeywordIf
+  KeywordElse
+  KeywordWhile
+  KeywordFor
+  KeywordDo
+  KeywordBreak
+  KeywordContinue
+  KeywordSwitch
+  KeywordCase
+  KeywordDefault
+  KeywordDebugger
+  KeywordTry
+  KeywordCatch
+  KeywordFinally
+  KeywordThrow
+  KeywordWith
+  KeywordNew
+  KeywordClass
+  KeywordInterface
+  KeywordType
+  KeywordEnum
+  KeywordModule
+  KeywordNamespace
+  KeywordImport
+  KeywordExport
+  KeywordAssert
+  KeywordGlobal
+  KeywordFrom
+  KeywordExtends
+  KeywordImplements
+  KeywordIn
+  KeywordInstanceof
+  KeywordOf
+  KeywordAs
+  KeywordSatisfies
+  KeywordDelete
+  KeywordTypeof
+  KeywordVoid
+  KeywordAwait
+  KeywordYield
+  KeywordThis
+  KeywordSuper
+  KeywordTrue
+  KeywordFalse
+  KeywordNull
+  LParen
+  RParen
+  LBrace
+  RBrace
+  LBracket
+  RBracket
+  Comma
+  Dot
+  DotDotDot
+  Semicolon
+  Colon
+  Question
+  QuestionDot
+  Plus
+  PlusPlus
+  PlusEq
+  Minus
+  MinusMinus
+  MinusEq
+  Star
+  StarStar
+  StarEq
+  StarStarEq
+  Slash
+  SlashEq
+  Percent
+  PercentEq
+  Bang
+  Tilde
+  Eq
+  EqEq
+  Arrow
+  EqEqEq
+  BangEq
+  BangEqEq
+  Lt
+  LtLt
+  LtLtEq
+  LtSlash
+  Gt
+  GtGt
+  GtGtGt
+  GtGtEq
+  GtGtGtEq
+  LtEq
+  GtEq
+  Ampersand
+  AmpAmp
+  AmpersandEq
+  AmpAmpEq
+  Bar
+  BarBar
+  BarEq
+  BarBarEq
+  Caret
+  CaretEq
+  QuestionQuestion
+  QuestionQuestionEq
+  At
+  Eof
+}
+pub impl Eq for LexKind
+
+pub struct LexToken {
+  kind : LexKind
+  start : Int
+  end : Int
+  has_leading_line_break : Bool
+}
+pub impl Show for LexToken
+
+pub struct MappedTypeNode {
+  is_readonly : Bool
+  type_parameter : TypeParameterDecl
+  name_type : TypeNode?
+  is_optional : Bool
+  type_node : TypeNode?
+}
+pub fn MappedTypeNode::new(Bool, TypeParameterDecl, TypeNode?, Bool, TypeNode?) -> Self
+pub impl Eq for MappedTypeNode
+pub impl Show for MappedTypeNode
+
+pub enum MetaPropertyKind {
+  NewTarget
+  ImportMeta
+}
+pub impl Eq for MetaPropertyKind
+pub impl Show for MetaPropertyKind
+
+pub struct MethodDecl {
+  decorators : NodeArray[Expr]?
+  modifiers : ClassMemberModifiers
+  is_generator : Bool
+  name : PropertyName
+  is_optional : Bool
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+  body : Array[Stmt]?
+}
+pub fn MethodDecl::new(NodeArray[Expr]?, ClassMemberModifiers, Bool, PropertyName, Bool, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
+pub impl Eq for MethodDecl
+pub impl Show for MethodDecl
+
+pub struct MethodSignature {
+  name : PropertyName
+  is_optional : Bool
+  type_parameters : NodeArray[TypeParameterDecl]?
+  parameters : NodeArray[ParameterDecl]
+  type_node : TypeNode?
+}
+pub fn MethodSignature::new(PropertyName, Bool, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?) -> Self
+pub impl Eq for MethodSignature
+pub impl Show for MethodSignature
+
+pub enum ModifierKind {
+  Abstract
+  Accessor
+  Async
+  Const
+  Declare
+  Default
+  Export
+  In
+  Public
+  Private
+  Protected
+  Readonly
+  Override
+  Out
+  Static
+}
+pub impl Eq for ModifierKind
+
+pub enum ModuleBody {
+  ModuleBlock(NodeArray[Stmt])
+  ModuleDecl(ModuleDecl)
+}
+pub impl Eq for ModuleBody
+pub impl Show for ModuleBody
+
+pub struct ModuleDecl {
+  modifiers : TopLevelModifiers
+  name : ModuleName
+  body : ModuleBody?
+}
+pub fn ModuleDecl::new(TopLevelModifiers, ModuleName, ModuleBody?) -> Self
+pub impl Eq for ModuleDecl
+pub impl Show for ModuleDecl
+
+pub enum ModuleName {
+  Identifier(Identifier)
+  StringLiteral(StringLiteral)
+}
+pub impl Eq for ModuleName
+pub impl Show for ModuleName
+
+pub enum NamedExportBindings {
+  NamespaceExport(Identifier)
+  NamedExports(NodeArray[ExportSpecifier])
+}
+pub impl Eq for NamedExportBindings
+pub impl Show for NamedExportBindings
+
+pub enum NamedImportBindings {
+  NamespaceImport(Identifier)
+  NamedImports(NodeArray[ImportSpecifier])
+}
+pub impl Eq for NamedImportBindings
+pub impl Show for NamedImportBindings
+
+pub struct NamespaceExportDecl {
+  name : Identifier
+}
+pub fn NamespaceExportDecl::new(Identifier) -> Self
+pub impl Eq for NamespaceExportDecl
+pub impl Show for NamespaceExportDecl
+
+pub struct NewExpr {
+  expression : Expr
+  type_arguments : NodeArray[TypeNode]?
+  arguments : NodeArray[Expr]?
+}
+pub fn NewExpr::new(Expr, NodeArray[TypeNode]?, NodeArray[Expr]?) -> Self
+pub impl Eq for NewExpr
+pub impl Show for NewExpr
+
+pub struct NoSubstitutionTemplateLiteral {
+  text : String
+  raw_text : String
+  is_unterminated : Bool
+  has_extended_unicode_escape : Bool
+}
+pub fn NoSubstitutionTemplateLiteral::new(String, String) -> Self
+pub impl Eq for NoSubstitutionTemplateLiteral
+pub impl Show for NoSubstitutionTemplateLiteral
+
+pub struct NodeArray[T] {
+  elements : Array[T]
+  start : Span
+  end : Span
+  has_trailing_comma : Bool
+  is_missing_list : Bool
+}
+pub fn[T] NodeArray::get(Self[T], Int) -> T?
+pub fn[T] NodeArray::iter(Self[T]) -> Iter[T]
+pub fn[T] NodeArray::length(Self[T]) -> Int
+pub impl[T : Eq] Eq for NodeArray[T]
+pub impl[T : Show] Show for NodeArray[T]
+
+pub struct NumericLiteral {
+  text : String
+  is_unterminated : Bool
+  has_extended_unicode_escape : Bool
+  is_octal_literal : Bool
+  span : Span
+}
+pub fn NumericLiteral::new(String, Span) -> Self
+pub impl Eq for NumericLiteral
+pub impl Show for NumericLiteral
+
+pub enum ObjectLiteralElementLike {
+  PropertyAssignment(PropertyAssignment)
+  ShorthandPropertyAssignment(ShorthandPropertyAssignment)
+  SpreadAssignment(Expr)
+  MethodDecl(MethodDecl)
+  GetAccessor(GetAccessorDecl)
+  SetAccessor(SetAccessorDecl)
+}
+pub impl Eq for ObjectLiteralElementLike
+pub impl Show for ObjectLiteralElementLike
+
+pub struct ParameterDecl {
+  modifiers : ParameterModifiers
+  is_rest : Bool
+  name : BindingName
+  is_optional : Bool
+  type_node : TypeNode?
+  initializer : Expr?
+  span : Span
+}
+pub fn ParameterDecl::new(BindingName, ParameterModifiers, Bool, Bool, TypeNode?, Expr?, Span) -> Self
+pub impl Eq for ParameterDecl
+pub impl Show for ParameterDecl
+
+pub struct ParameterModifiers {
+  accessibility : AccessibilityModifier?
+  is_readonly : Bool
+}
+pub fn ParameterModifiers::new() -> Self
+pub impl Default for ParameterModifiers
+pub impl Eq for ParameterModifiers
+pub impl Show for ParameterModifiers
+
+pub enum ParseErrorKind {
+  UnexpectedToken(LexKind)
+  UnexpectedPrimary(LexKind)
+  ExpectedToken(expected~ : LexKind, actual~ : LexKind)
+  ExpectedNumericLiteralAfterMinus(LexKind)
+  ExpectedStringLiteralInImportType(LexKind)
+  ExpectedStringLiteralInModuleSpecifier(LexKind)
+  ExpectedTemplateLiteralTypeSpan(LexKind)
+  ExpectedTemplateSpan(LexKind)
+  InvalidBinaryOperator(LexKind)
+  InvalidNamespaceNameStringLiteral(LexKind)
+  StringLiteralModuleNameOnlyInDeclare
+  InvalidModuleBody
+  ModuleBodyRequiredWithoutDeclare
+  DecoratorsNotAllowedHere
+  LineBreakAfterThrow
+  LineBreakAfterTypeKeyword
+  ForAwaitMustUseOf(LexKind)
+  TopLevelAwaitOnlyInModule
+  MissingFunctionBodyOrSemicolon(LexKind)
+  LeadingCommaInImportAttributes
+  LeadingCommaInNamedImports
+  LeadingCommaInNamedExports
+  MissingDeclarationAfterModifiers(LexKind)
+  DuplicateModifier(ModifierKind)
+  InvalidVarianceOrder(previous~ : ModifierKind, current~ : ModifierKind)
+  YieldOnlyInGenerator
+  RestParameterMustBeLastInParameterList
+  RestBindingMustBeLastInPattern
+  DeclarationFileStatementNotAllowed
+  ExportAssignmentOnlyInDeclarationFile
+  ExportAssignmentCannotBeUsedWithOtherExports
+  ExportNamespaceOnlyInDeclarationFile
+  ExportNamespaceOnlyInModule
+  AwaitOnlyInAsyncFunction
+  AwaitUsingOnlyInAsyncFunction
+  ForAwaitOnlyInAsyncFunction
+  ForAwaitOnlyInModule
+  AwaitUsingOnlyInModule
+  IdentifierAfterNumericLiteral
+  InvalidChar(Char)
+  UnterminatedString
+  InvalidSlice(end~ : Int)
+  MultipleAccessibilityModifiers
+  InvalidModifierForClassMember(ModifierKind)
+  InvalidModifierForParameter(ModifierKind)
+  InvalidModifierForTopLevel(ModifierKind)
+  InvalidModifierForTypeParameter(ModifierKind)
+  AbstractAndStaticCannotCombine
+  AbstractMembersCannotBePrivate
+  AbstractAndAsyncCannotCombine
+  AccessorAndAbstractCannotCombine
+  AbstractOnlyValidOnClasses
+  ConstOnlyValidOnEnums
+  InferTypeOnlyInConditionalExtends
+}
+pub impl Eq for ParseErrorKind
+pub impl Show for ParseErrorKind
+
+pub struct Parser {
+  tokens : Array[LexToken]
+  mut index : Int
+  line_starts : Array[Int]
+  is_module : Bool
+  script_kind : ScriptKind
+  mut in_generator : Int
+  mut in_function : Int
+  mut in_async_function : Int
+  mut in_conditional_extends : Int
+  mut has_import_syntax : Bool
+  mut has_export_syntax : Bool
+  mut has_non_namespace_export : Bool
+  mut has_export_assignment : Bool
+  mut export_namespace_range : (Int, Int)?
+  mut top_level_await_range : (Int, Int)?
+  mut for_await_range : (Int, Int)?
+  mut await_using_range : (Int, Int)?
+}
+pub fn Parser::new(String, script_kind? : ScriptKind, is_module? : Bool) -> Self raise ParseError
+pub fn Parser::parse_source_file(Self, String, String) -> SourceFile raise ParseError
+pub impl Show for Parser
+
+pub struct PostfixUnaryExpr {
+  operand : Expr
+  operator : UnaryOperator
+}
+pub fn PostfixUnaryExpr::new(Expr, UnaryOperator) -> Self
+pub impl Eq for PostfixUnaryExpr
+pub impl Show for PostfixUnaryExpr
+
+pub struct PrefixUnaryExpr {
+  operator : UnaryOperator
+  operand : Expr
+}
+pub fn PrefixUnaryExpr::new(UnaryOperator, Expr) -> Self
+pub impl Eq for PrefixUnaryExpr
+pub impl Show for PrefixUnaryExpr
+
+pub struct PropertyAccessExpr {
+  expression : Expr
+  is_null_coalescing : Bool
+  name : Identifier
+}
+pub fn PropertyAccessExpr::new(Expr, Identifier, Bool) -> Self
+pub impl Eq for PropertyAccessExpr
+pub impl Show for PropertyAccessExpr
+
+pub struct PropertyAssignment {
+  name : PropertyName
+  initializer : Expr
+}
+pub fn PropertyAssignment::new(PropertyName, Expr) -> Self
+pub impl Eq for PropertyAssignment
+pub impl Show for PropertyAssignment
+
+pub struct PropertyDecl {
+  decorators : NodeArray[Expr]?
+  modifiers : ClassMemberModifiers
+  name : PropertyName
+  is_optional : Bool
+  is_definite : Bool
+  type_node : TypeNode?
+  initializer : Expr?
+}
+pub fn PropertyDecl::new(NodeArray[Expr]?, ClassMemberModifiers, PropertyName, Bool, Bool, TypeNode?, Expr?) -> Self
+pub impl Eq for PropertyDecl
+pub impl Show for PropertyDecl
+
+pub enum PropertyName {
+  Identifier(Identifier)
+  StringLiteral(StringLiteral)
+  NumericLiteral(NumericLiteral)
+  ComputedPropertyName(Expr)
+  PrivateIdentifier(String)
+}
+pub impl Eq for PropertyName
+pub impl Show for PropertyName
+
+pub struct PropertySignature {
+  is_readonly : Bool
+  name : PropertyName
+  is_optional : Bool
+  type_node : TypeNode?
+}
+pub fn PropertySignature::new(Bool, PropertyName, Bool, TypeNode?) -> Self
+pub impl Eq for PropertySignature
+pub impl Show for PropertySignature
+
+pub struct QualifiedName {
+  left : EntityName
+  right : Identifier
+}
+pub fn QualifiedName::new(EntityName, Identifier) -> Self
+pub impl Eq for QualifiedName
+pub impl Show for QualifiedName
+
+pub struct RegularExprLiteral {
+  text : String
+  is_unterminated : Bool
+  has_extended_unicode_escape : Bool
+  span : Span
+}
+pub fn RegularExprLiteral::new(String, Span) -> Self
+pub impl Eq for RegularExprLiteral
+pub impl Show for RegularExprLiteral
+
+pub struct SatisfiesExpr {
+  expression : Expr
+  type_node : TypeNode
+}
+pub fn SatisfiesExpr::new(Expr, TypeNode) -> Self
+pub impl Eq for SatisfiesExpr
+pub impl Show for SatisfiesExpr
+
+pub(all) enum ScriptKind {
+  Unknown
+  JS
+  JSX
+  TS
+  TSX
+  TSDeclarations
+  External
+  JSON
+  Deferred
+}
+pub impl Eq for ScriptKind
+pub impl Show for ScriptKind
+
+pub(all) enum ScriptTarget {
+  ES3
+  ES5
+  ES2015
+  ES2016
+  ES2017
+  ES2018
+  ES2019
+  ES2020
+  ES2021
+  ES2022
+  ES2023
+  ESNext
+  Latest
+}
+pub impl Eq for ScriptTarget
+pub impl Show for ScriptTarget
+
+pub struct SetAccessorDecl {
+  decorators : NodeArray[Expr]?
+  modifiers : ClassMemberModifiers
+  name : PropertyName
+  parameters : NodeArray[ParameterDecl]
+  body : Array[Stmt]?
+}
+pub fn SetAccessorDecl::new(NodeArray[Expr]?, ClassMemberModifiers, PropertyName, NodeArray[ParameterDecl], Array[Stmt]?) -> Self
+pub impl Eq for SetAccessorDecl
+pub impl Show for SetAccessorDecl
+
+pub struct ShorthandPropertyAssignment {
+  name : Identifier
+  object_assignment_initializer : Expr?
+}
+pub fn ShorthandPropertyAssignment::new(Identifier) -> Self
+pub impl Eq for ShorthandPropertyAssignment
+pub impl Show for ShorthandPropertyAssignment
+
+pub struct SourceFile {
+  stmts : NodeArray[Stmt]
+  file_name : String
+  text : String
+  script_kind : ScriptKind
+  is_module : Bool
+}
+pub impl Show for SourceFile
+
+pub struct Span {
+  start : Int
+  end : Int
+  line : Int
+  column : Int
+  end_line : Int
+  end_column : Int
+}
+pub fn Span::with_line_info(Int, Int, Int, Int, Int, Int) -> Self
+pub impl Eq for Span
+pub impl Show for Span
+
+pub struct Stmt {
+  kind : StmtKind
+  span : Span
+}
+pub fn Stmt::new(StmtKind, Span) -> Self
+pub impl Eq for Stmt
+pub impl Show for Stmt
+
+pub enum StmtKind {
+  Block(Array[Stmt])
+  VariableStmt(VariableStmt)
+  UsingStmt(UsingStmt)
+  ExprStmt(Expr)
+  IfStmt(IfStmt)
+  DoStmt(DoStmt)
+  WhileStmt(WhileStmt)
+  ForStmt(ForStmt)
+  ForInStmt(ForInStmt)
+  ForOfStmt(ForOfStmt)
+  ContinueStmt(Identifier?)
+  BreakStmt(Identifier?)
+  ReturnStmt(Expr?)
+  WithStmt(WithStmt)
+  SwitchStmt(SwitchStmt)
+  LabeledStmt(LabeledStmt)
+  ThrowStmt(Expr)
+  TryStmt(TryStmt)
+  DebuggerStmt
+  FunctionDecl(FunctionDecl)
+  ClassDecl(ClassDecl)
+  InterfaceDecl(InterfaceDecl)
+  TypeAliasDecl(TypeAliasDecl)
+  EnumDecl(EnumDecl)
+  ModuleDecl(ModuleDecl)
+  ImportDecl(ImportDecl)
+  ImportEqualsDecl(ImportEqualsDecl)
+  ExportDecl(ExportDecl)
+  ExportAssignment(ExportAssignment)
+  NamespaceExportDecl(NamespaceExportDecl)
+  EmptyStmt
+}
+pub impl Eq for StmtKind
+pub impl Show for StmtKind
+
+pub struct StringLiteral {
+  text : String
+  is_unterminated : Bool
+  has_extended_unicode_escape : Bool
+  is_octal_literal : Bool
+  span : Span
+}
+pub fn StringLiteral::new(String, Span) -> Self
+pub impl Eq for StringLiteral
+pub impl Show for StringLiteral
+
+pub struct SwitchStmt {
+  expression : Expr
+  case_block : CaseBlock
+}
+pub fn SwitchStmt::new(Expr, CaseBlock) -> Self
+pub impl Eq for SwitchStmt
+pub impl Show for SwitchStmt
+
+pub struct TaggedTemplateExpr {
+  tag : Expr
+  type_arguments : NodeArray[TypeNode]?
+  template : Expr
+}
+pub fn TaggedTemplateExpr::new(Expr, NodeArray[TypeNode]?, Expr) -> Self
+pub impl Eq for TaggedTemplateExpr
+pub impl Show for TaggedTemplateExpr
+
+pub struct TemplateExpr {
+  head : TemplateHead
+  template_spans : NodeArray[TemplateSpan]
+}
+pub fn TemplateExpr::new(TemplateHead, NodeArray[TemplateSpan]) -> Self
+pub impl Eq for TemplateExpr
+pub impl Show for TemplateExpr
+
+pub struct TemplateHead {
+  text : String
+  raw_text : String
+  is_unterminated : Bool
+  has_extended_unicode_escape : Bool
+}
+pub fn TemplateHead::new(String, String) -> Self
+pub impl Eq for TemplateHead
+pub impl Show for TemplateHead
+
+pub struct TemplateLiteralTypeNode {
+  head : TemplateHead
+  template_spans : NodeArray[TemplateLiteralTypeSpan]
+}
+pub fn TemplateLiteralTypeNode::new(TemplateHead, NodeArray[TemplateLiteralTypeSpan]) -> Self
+pub impl Eq for TemplateLiteralTypeNode
+pub impl Show for TemplateLiteralTypeNode
+
+pub struct TemplateLiteralTypeSpan {
+  type_node : TypeNode
+  literal : TemplateMiddleOrTemplateTail
+}
+pub fn TemplateLiteralTypeSpan::new(TypeNode, TemplateMiddleOrTemplateTail) -> Self
+pub impl Eq for TemplateLiteralTypeSpan
+pub impl Show for TemplateLiteralTypeSpan
+
+pub struct TemplateMiddle {
+  text : String
+  raw_text : String
+  is_unterminated : Bool
+  has_extended_unicode_escape : Bool
+}
+pub fn TemplateMiddle::new(String, String) -> Self
+pub impl Eq for TemplateMiddle
+pub impl Show for TemplateMiddle
+
+pub enum TemplateMiddleOrTemplateTail {
+  TemplateMiddle(TemplateMiddle)
+  TemplateTail(TemplateTail)
+}
+pub impl Eq for TemplateMiddleOrTemplateTail
+pub impl Show for TemplateMiddleOrTemplateTail
+
+pub struct TemplateSpan {
+  expression : Expr
+  literal : TemplateMiddleOrTemplateTail
+}
+pub fn TemplateSpan::new(Expr, TemplateMiddleOrTemplateTail) -> Self
+pub impl Eq for TemplateSpan
+pub impl Show for TemplateSpan
+
+pub struct TemplateTail {
+  text : String
+  raw_text : String
+  is_unterminated : Bool
+  has_extended_unicode_escape : Bool
+}
+pub fn TemplateTail::new(String, String) -> Self
+pub impl Eq for TemplateTail
+pub impl Show for TemplateTail
+
+pub struct TopLevelModifiers {
+  is_export : Bool
+  is_default : Bool
+  is_declare : Bool
+}
+pub fn TopLevelModifiers::new() -> Self
+pub impl Eq for TopLevelModifiers
+pub impl Show for TopLevelModifiers
+
+pub struct TryStmt {
+  try_block : Array[Stmt]
+  catch_clause : CatchClause?
+  finally_block : Array[Stmt]?
+}
+pub fn TryStmt::new(Array[Stmt], CatchClause?, Array[Stmt]?) -> Self
+pub impl Eq for TryStmt
+pub impl Show for TryStmt
+
+pub struct TupleElement {
+  label : Identifier?
+  is_optional : Bool
+  is_rest : Bool
+  type_node : TypeNode
+  span : Span
+}
+pub fn TupleElement::new(Identifier?, Bool, Bool, TypeNode, Span) -> Self
+pub impl Eq for TupleElement
+pub impl Show for TupleElement
+
+pub struct TypeAliasDecl {
+  modifiers : TopLevelModifiers
+  name : Identifier
+  type_parameters : NodeArray[TypeParameterDecl]?
+  type_node : TypeNode
+}
+pub fn TypeAliasDecl::new(TopLevelModifiers, Identifier, NodeArray[TypeParameterDecl]?, TypeNode) -> Self
+pub impl Eq for TypeAliasDecl
+pub impl Show for TypeAliasDecl
+
+pub struct TypeAssertionExpr {
+  type_node : TypeNode
+  expression : Expr
+}
+pub fn TypeAssertionExpr::new(TypeNode, Expr) -> Self
+pub impl Eq for TypeAssertionExpr
+pub impl Show for TypeAssertionExpr
+
+pub enum TypeElement {
+  PropertySignature(PropertySignature)
+  MethodSignature(MethodSignature)
+  CallSignature(CallSignatureDecl)
+  ConstructSignature(ConstructSignatureDecl)
+  IndexSignature(IndexSignatureDecl)
+  GetAccessor(GetAccessorDecl)
+  SetAccessor(SetAccessorDecl)
+}
+pub impl Eq for TypeElement
+pub impl Show for TypeElement
+
+pub enum TypeKeyword {
+  Any
+  Unknown
+  Number
+  BigInt
+  Object
+  Boolean
+  String
+  Symbol
+  Void
+  Undefined
+  Null
+  Never
+}
+pub impl Eq for TypeKeyword
+pub impl Show for TypeKeyword
+
+pub struct TypeNode {
+  kind : TypeNodeKind
+  span : Span
+}
+pub fn TypeNode::new(TypeNodeKind, Span) -> Self
+pub impl Eq for TypeNode
+pub impl Show for TypeNode
+
+pub enum TypeNodeKind {
+  KeywordType(TypeKeyword)
+  TypeReference(TypeReferenceNode)
+  ArrayType(TypeNode)
+  TupleType(NodeArray[TupleElement])
+  UnionType(NodeArray[TypeNode])
+  IntersectionType(NodeArray[TypeNode])
+  FunctionType(FunctionTypeNode)
+  ConstructorType(ConstructorTypeNode)
+  TypeLiteral(NodeArray[TypeElement])
+  LiteralType(Expr)
+  ThisType
+  ParenthesizedType(TypeNode)
+  TypeQuery(TypeQueryNode)
+  TypeOperator(TypeOperatorNode)
+  IndexedAccessType(IndexedAccessTypeNode)
+  ConditionalType(ConditionalTypeNode)
+  MappedType(MappedTypeNode)
+  InferType(TypeParameterDecl)
+  ImportType(ImportTypeNode)
+  TemplateLiteralType(TemplateLiteralTypeNode)
+}
+pub impl Eq for TypeNodeKind
+pub impl Show for TypeNodeKind
+
+pub enum TypeOperatorKind {
+  KeyOf
+  Readonly
+  Unique
+}
+pub impl Eq for TypeOperatorKind
+pub impl Show for TypeOperatorKind
+
+pub struct TypeOperatorNode {
+  operator : TypeOperatorKind
+  type_node : TypeNode
+}
+pub fn TypeOperatorNode::new(TypeOperatorKind, TypeNode) -> Self
+pub impl Eq for TypeOperatorNode
+pub impl Show for TypeOperatorNode
+
+pub struct TypeParameterDecl {
+  modifiers : TypeParameterModifiers
+  name : Identifier
+  constraint : TypeNode?
+  default_type : TypeNode?
+}
+pub fn TypeParameterDecl::new(Identifier, TypeParameterModifiers, TypeNode?, TypeNode?) -> Self
+pub impl Eq for TypeParameterDecl
+pub impl Show for TypeParameterDecl
+
+pub struct TypeParameterModifiers {
+  variance : VarianceModifier?
+  is_const : Bool
+}
+pub fn TypeParameterModifiers::new() -> Self
+pub impl Default for TypeParameterModifiers
+pub impl Eq for TypeParameterModifiers
+pub impl Show for TypeParameterModifiers
+
+pub enum TypeQueryExprName {
+  EntityName(EntityName)
+  ImportType(ImportTypeNode)
+}
+pub impl Eq for TypeQueryExprName
+pub impl Show for TypeQueryExprName
+
+pub struct TypeQueryNode {
+  expr_name : TypeQueryExprName
+  type_arguments : NodeArray[TypeNode]?
+}
+pub fn TypeQueryNode::new(TypeQueryExprName, NodeArray[TypeNode]?) -> Self
+pub impl Eq for TypeQueryNode
+pub impl Show for TypeQueryNode
+
+pub struct TypeReferenceNode {
+  type_name : EntityName
+  type_arguments : NodeArray[TypeNode]?
+}
+pub fn TypeReferenceNode::new(EntityName, NodeArray[TypeNode]?) -> Self
+pub impl Eq for TypeReferenceNode
+pub impl Show for TypeReferenceNode
+
+pub enum UnaryOperator {
+  PlusPlus
+  MinusMinus
+  Plus
+  Minus
+  Tilde
+  Exclamation
+}
+pub impl Eq for UnaryOperator
+pub impl Show for UnaryOperator
+
+pub struct UsingDecl {
+  name : Identifier
+  type_node : TypeNode?
+  initializer : Expr?
+}
+pub fn UsingDecl::new(Identifier, TypeNode?, Expr?) -> Self
+pub impl Eq for UsingDecl
+pub impl Show for UsingDecl
+
+pub struct UsingStmt {
+  modifiers : NodeArray[ModifierKind]?
+  declaration_list : NodeArray[UsingDecl]
+  is_await : Bool
+}
+pub fn UsingStmt::new(NodeArray[ModifierKind]?, NodeArray[UsingDecl], Bool) -> Self
+pub impl Eq for UsingStmt
+pub impl Show for UsingStmt
+
+pub struct VariableDecl {
+  kind : VariableDeclKind
+  name : BindingName
+  type_node : TypeNode?
+  initializer : Expr?
+}
+pub fn VariableDecl::new(VariableDeclKind, BindingName, TypeNode?, Expr?) -> Self
+pub impl Eq for VariableDecl
+pub impl Show for VariableDecl
+
+pub enum VariableDeclKind {
+  Let
+  Const
+  Var
+}
+pub impl Eq for VariableDeclKind
+pub impl Show for VariableDeclKind
+
+pub struct VariableStmt {
+  modifiers : NodeArray[ModifierKind]?
+  declaration_list : NodeArray[VariableDecl]
+}
+pub fn VariableStmt::new(NodeArray[ModifierKind]?, NodeArray[VariableDecl]) -> Self
+pub impl Eq for VariableStmt
+pub impl Show for VariableStmt
+
+pub enum VarianceModifier {
+  In
+  Out
+  InOut
+}
+pub impl Eq for VarianceModifier
+pub impl Show for VarianceModifier
+
+pub struct WhileStmt {
+  expression : Expr
+  statement : Stmt
+}
+pub fn WhileStmt::new(Expr, Stmt) -> Self
+pub impl Eq for WhileStmt
+pub impl Show for WhileStmt
+
+pub struct WithStmt {
+  expression : Expr
+  statement : Stmt
+}
+pub fn WithStmt::new(Expr, Stmt) -> Self
+pub impl Eq for WithStmt
+pub impl Show for WithStmt
+
+pub struct YieldExpr {
+  is_delegate : Bool
+  expression : Expr?
+}
+pub fn YieldExpr::new(Bool, Expr?) -> Self
+pub impl Eq for YieldExpr
+pub impl Show for YieldExpr
+
+// Type aliases
+
+// Traits
+

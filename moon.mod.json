@@ -1,0 +1,9 @@
+{
+  "name": "sennenki/tsparser",
+  "version": "0.1.0",
+  "readme": "README.mbt.md",
+  "repository": "https://github.com/sennenki/yet-another-tsparser",
+  "license": "Apache-2.0",
+  "keywords": ["parser", "typescript", "ts"],
+  "description": "Yet another TypeScript parser."
+}
