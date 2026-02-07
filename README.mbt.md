@@ -8,11 +8,12 @@ Usage:
 
 ```moonbit
 // Construct a Parser instance
+
 ///|
 let parser = Parser::new(source)
 // Specify file name
 // The second argument of parse_source_file will be used in the output SourceFile struct
-// Usually it's expected to be the same as the argument of Parser::new 
+// Usually it's expected to be the same as the argument of Parser::new
 
 ///|
 let result = parser.parse_source_file("filename.ts", source) catch {
