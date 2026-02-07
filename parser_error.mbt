@@ -39,6 +39,7 @@ pub enum ParseErrorKind {
   ForAwaitOnlyInModule
   AwaitUsingOnlyInModule
   IdentifierAfterNumericLiteral
+  NumericSeparatorAtEnd
   InvalidChar(Char)
   UnterminatedString
   InvalidSlice(end~ : Int)
@@ -139,6 +140,8 @@ pub impl Show for ParseErrorKind with to_string(self) {
       "'await using' is only allowed at the top level of a module file"
     IdentifierAfterNumericLiteral =>
       "An identifier or keyword cannot immediately follow a numeric literal"
+    NumericSeparatorAtEnd =>
+      "numeric separator cannot appear at the end of a numeric literal"
     InvalidChar(c) => "invalid character: \{c}"
     UnterminatedString => "unterminated string literal"
     InvalidSlice(end~) => "invalid slice end: \{end}"

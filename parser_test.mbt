@@ -3483,6 +3483,15 @@ test "expr - numeric literal followed by identifier error" {
 }
 
 ///|
+test "expr - numeric literal trailing separator error" {
+  let error = try? parse_source("1_")
+  inspect(
+    error,
+    content="Err(Parse error at 1:2-1:3(1-2): numeric separator cannot appear at the end of a numeric literal)",
+  )
+}
+
+///|
 test "stmt - function overload missing body error" {
   let error = try? parse_source("function foo() const x = 1")
   inspect(

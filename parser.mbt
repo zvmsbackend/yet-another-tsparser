@@ -418,8 +418,21 @@ fn read_digits(text : String, start : Int, pred : (Char) -> Bool) -> Int {
 }
 
 ///|
-fn read_exponent(text : String, start : Int) -> Int {
+fn trailing_numeric_sep_pos(text : String, start : Int, end : Int) -> Int? {
+  if end > start {
+    match text.get_char(end - 1) {
+      Some('_') => Some(end - 1)
+      _ => None
+    }
+  } else {
+    None
+  }
+}
+
+///|
+fn read_exponent(text : String, start : Int) -> (Int, Int?) {
   let mut i = start
+  let mut trailing_sep : Int? = None
   if text.get_char(i) is Some(c) && (c == 'e' || c == 'E') {
     let mut j = i + 1
     if text.get_char(j) is Some(sign) && (sign == '+' || sign == '-') {
@@ -427,10 +440,11 @@ fn read_exponent(text : String, start : Int) -> Int {
     }
     let after = read_digits(text, j, is_dec_digit_or_sep)
     if after > j {
+      trailing_sep = trailing_numeric_sep_pos(text, j, after)
       i = after
     }
   }
-  i
+  (i, trailing_sep)
 }
 
 ///|
@@ -921,6 +935,14 @@ fn lex(
                 ParseErrorKind::InvalidChar(next),
               )
             }
+            if trailing_numeric_sep_pos(text, i, after) is Some(pos) {
+              raise parse_error_at_with(
+                line_starts,
+                pos,
+                pos + 1,
+                ParseErrorKind::NumericSeparatorAtEnd,
+              )
+            }
             i = after
             if text.get_char(i) is Some('n') {
               i = i + 1
@@ -946,6 +968,14 @@ fn lex(
                 i,
                 i + 1,
                 ParseErrorKind::InvalidChar(next),
+              )
+            }
+            if trailing_numeric_sep_pos(text, i, after) is Some(pos) {
+              raise parse_error_at_with(
+                line_starts,
+                pos,
+                pos + 1,
+                ParseErrorKind::NumericSeparatorAtEnd,
               )
             }
             i = after
@@ -975,6 +1005,14 @@ fn lex(
                 ParseErrorKind::InvalidChar(next),
               )
             }
+            if trailing_numeric_sep_pos(text, i, after) is Some(pos) {
+              raise parse_error_at_with(
+                line_starts,
+                pos,
+                pos + 1,
+                ParseErrorKind::NumericSeparatorAtEnd,
+              )
+            }
             i = after
             if text.get_char(i) is Some('n') {
               i = i + 1
@@ -995,10 +1033,36 @@ fn lex(
         }
       }
       i = read_digits(text, i + 1, is_dec_digit_or_sep)
-      if text.get_char(i) is Some('.') && !(text.get_char(i + 1) is Some('.')) {
-        i = read_digits(text, i + 1, is_dec_digit_or_sep)
+      if trailing_numeric_sep_pos(text, start + 1, i) is Some(pos) {
+        raise parse_error_at_with(
+          line_starts,
+          pos,
+          pos + 1,
+          ParseErrorKind::NumericSeparatorAtEnd,
+        )
       }
-      i = read_exponent(text, i)
+      if text.get_char(i) is Some('.') && !(text.get_char(i + 1) is Some('.')) {
+        let fraction_start = i + 1
+        i = read_digits(text, fraction_start, is_dec_digit_or_sep)
+        if trailing_numeric_sep_pos(text, fraction_start, i) is Some(pos) {
+          raise parse_error_at_with(
+            line_starts,
+            pos,
+            pos + 1,
+            ParseErrorKind::NumericSeparatorAtEnd,
+          )
+        }
+      }
+      let (after_exp, trailing_exp_sep) = read_exponent(text, i)
+      if trailing_exp_sep is Some(pos) {
+        raise parse_error_at_with(
+          line_starts,
+          pos,
+          pos + 1,
+          ParseErrorKind::NumericSeparatorAtEnd,
+        )
+      }
+      i = after_exp
       if text.get_char(i) is Some('n') {
         i = i + 1
       }
@@ -1079,7 +1143,24 @@ fn lex(
         if text.get_char(i + 1) is Some(next) && is_digit(next) {
           let number_start = i
           i = read_digits(text, i + 1, is_dec_digit_or_sep)
-          i = read_exponent(text, i)
+          if trailing_numeric_sep_pos(text, number_start + 1, i) is Some(pos) {
+            raise parse_error_at_with(
+              line_starts,
+              pos,
+              pos + 1,
+              ParseErrorKind::NumericSeparatorAtEnd,
+            )
+          }
+          let (after_exp, trailing_exp_sep) = read_exponent(text, i)
+          if trailing_exp_sep is Some(pos) {
+            raise parse_error_at_with(
+              line_starts,
+              pos,
+              pos + 1,
+              ParseErrorKind::NumericSeparatorAtEnd,
+            )
+          }
+          i = after_exp
           if text.get_char(i) is Some('n') {
             i = i + 1
           }
