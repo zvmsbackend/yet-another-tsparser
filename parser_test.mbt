@@ -435,12 +435,35 @@ test "expr - object literal spreads" {
 }
 
 ///|
+test "expr - object literal keyword keys" {
+  let source = parse_source("({ return: 1, default: 2 })")
+  inspect(
+    source,
+    content=(
+      #|{stmts: {elements: [{kind: ExprStmt({kind: ParenthesizedExpr({kind: ObjectLiteralExpr({elements: [PropertyAssignment({name: Identifier({text: "return", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:4-1:10(3-9)}), initializer: {kind: NumericLiteral({text: "1", is_unterminated: false, has_extended_unicode_escape: false, is_octal_literal: false, span: 1:12-1:13(11-12)}), span: 1:12-1:13(11-12)}}), PropertyAssignment({name: Identifier({text: "default", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:15-1:22(14-21)}), initializer: {kind: NumericLiteral({text: "2", is_unterminated: false, has_extended_unicode_escape: false, is_octal_literal: false, span: 1:24-1:25(23-24)}), span: 1:24-1:25(23-24)}})], start: 1:2-1:2(1-1), end: 1:27-1:27(26-26), has_trailing_comma: false, is_missing_list: false}), span: 1:2-1:27(1-26)}), span: 1:1-1:28(0-27)}), span: 1:1-1:28(0-27)}], start: 1:1-1:1(0-0), end: 1:28-1:28(27-27), has_trailing_comma: false, is_missing_list: false}, file_name: "test.ts", text: "({ return: 1, default: 2 })", script_kind: TS, is_module: false}
+
+    ),
+  )
+}
+
+///|
 test "expr - chained calls and access" {
   let source = parse_source("foo().bar.baz(1)")
   inspect(
     source,
     content=(
       #|{stmts: {elements: [{kind: ExprStmt({kind: CallExpr({expression: {kind: PropertyAccessExpr({expression: {kind: PropertyAccessExpr({expression: {kind: CallExpr({expression: {kind: Identifier({text: "foo", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:1-1:4(0-3)}), span: 1:1-1:4(0-3)}, is_null_coalescing: false, type_arguments: None, arguments: {elements: [], start: 1:4-1:4(3-3), end: 1:6-1:6(5-5), has_trailing_comma: false, is_missing_list: false}}), span: 1:1-1:6(0-5)}, is_null_coalescing: false, name: {text: "bar", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:7-1:10(6-9)}}), span: 1:1-1:10(0-9)}, is_null_coalescing: false, name: {text: "baz", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:11-1:14(10-13)}}), span: 1:1-1:14(0-13)}, is_null_coalescing: false, type_arguments: None, arguments: {elements: [{kind: NumericLiteral({text: "1", is_unterminated: false, has_extended_unicode_escape: false, is_octal_literal: false, span: 1:15-1:16(14-15)}), span: 1:15-1:16(14-15)}], start: 1:14-1:14(13-13), end: 1:17-1:17(16-16), has_trailing_comma: false, is_missing_list: false}}), span: 1:1-1:17(0-16)}), span: 1:1-1:17(0-16)}], start: 1:1-1:1(0-0), end: 1:17-1:17(16-16), has_trailing_comma: false, is_missing_list: false}, file_name: "test.ts", text: "foo().bar.baz(1)", script_kind: TS, is_module: false}
+    ),
+  )
+}
+
+///|
+test "expr - member access keyword key" {
+  let source = parse_source("obj.return")
+  inspect(
+    source,
+    content=(
+      #|{stmts: {elements: [{kind: ExprStmt({kind: PropertyAccessExpr({expression: {kind: Identifier({text: "obj", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:1-1:4(0-3)}), span: 1:1-1:4(0-3)}, is_null_coalescing: false, name: {text: "return", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:5-1:11(4-10)}}), span: 1:1-1:11(0-10)}), span: 1:1-1:11(0-10)}], start: 1:1-1:1(0-0), end: 1:11-1:11(10-10), has_trailing_comma: false, is_missing_list: false}, file_name: "test.ts", text: "obj.return", script_kind: TS, is_module: false}
     ),
   )
 }
@@ -3697,3 +3720,4 @@ test "stmt - import defer comma" {
     Err(e) => inspect(e, content="unexpected error")
   }
 }
+// test{inspect(parse_source("let foo={return:bar};foo.return"))}

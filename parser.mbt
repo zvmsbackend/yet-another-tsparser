@@ -3323,7 +3323,11 @@ fn Parser::parse_property_name(self : Parser) -> PropertyName raise ParseError {
   let tok = self.current()
   match tok.kind {
     Identifier(_) => {
-      let id = self.parse_identifier()
+      let id = self.parse_identifier_name()
+      PropertyName::Identifier(id)
+    }
+    _ if keyword_text(tok.kind) is Some(_) => {
+      let id = self.parse_identifier_name()
       PropertyName::Identifier(id)
     }
     PrivateIdentifier(name) => {
@@ -4395,14 +4399,14 @@ fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
           expr = Expr::new(ExprKind::ElementAccessExpr(access), span)
           continue
         }
-        let name = self.parse_identifier()
+        let name = self.parse_identifier_name()
         let span = self.span_from(expr.span.start, name.span.end)
         let access = PropertyAccessExpr::new(expr, name, true)
         expr = Expr::new(ExprKind::PropertyAccessExpr(access), span)
       }
       Dot => {
         self.advance() |> ignore
-        let name = self.parse_identifier()
+        let name = self.parse_identifier_name()
         let span = self.span_from(expr.span.start, name.span.end)
         let access = PropertyAccessExpr::new(expr, name, false)
         expr = Expr::new(ExprKind::PropertyAccessExpr(access), span)
