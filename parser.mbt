@@ -424,6 +424,7 @@ fn trim_leading_whitespace(text : String) -> String {
   text.trim_start(chars=" \t").to_string()
 }
 
+///|
 fn trim_ending_whitespace(text : String) -> String {
   text.trim_end(chars=" \t").to_string()
 }
@@ -598,6 +599,7 @@ fn Parser::parse_decorators(
     }
     end_start = Some(expr.span.end)
     items.push(expr)
+    self.skip_doc_comments_in_expr()
   }
   if items.length() == 0 {
     None
@@ -621,6 +623,7 @@ fn Parser::parse_modifiers(
   let mut start_start : Int? = None
   let mut end_start : Int? = None
   for {
+    self.skip_doc_comments_in_expr()
     match self.current().kind {
       KeywordExport => {
         self.has_export_syntax = true
@@ -679,6 +682,7 @@ fn Parser::parse_parameter_modifiers(
   let mut start_start : Int? = None
   let mut end_start : Int? = None
   for {
+    self.skip_doc_comments_in_expr()
     match self.current().kind {
       Identifier(text) =>
         match modifier_kind_from_name(text) {
@@ -1673,6 +1677,13 @@ fn Parser::clear_doc_comment(self : Parser) -> Unit {
 }
 
 ///|
+fn Parser::skip_doc_comments_in_expr(self : Parser) -> Unit {
+  while self.current().kind is LexKind::DocComment(_) {
+    self.advance() |> ignore
+  }
+}
+
+///|
 fn Parser::mark_non_namespace_export(
   self : Parser,
   start : Int,
@@ -1774,6 +1785,7 @@ fn Parser::parse_semicolon(self : Parser) -> Unit raise ParseError {
 
 ///|
 fn Parser::expect(self : Parser, kind : LexKind) -> LexToken raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   if tok.kind == kind {
     self.index = self.index + 1
@@ -1790,6 +1802,7 @@ fn Parser::expect(self : Parser, kind : LexKind) -> LexToken raise ParseError {
 ///|
 /// Special handling for expecting '>' token with token splitting for >> ambiguity
 fn Parser::expect_gt(self : Parser) -> LexToken raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Gt => {
@@ -1945,12 +1958,14 @@ fn Parser::parse_constructor_type(
 
 ///|
 fn Parser::parse_type(self : Parser) -> TypeNode raise ParseError {
+  self.skip_doc_comments_in_expr()
   self.parse_conditional_type()
 }
 
 ///|
 fn Parser::parse_conditional_type(self : Parser) -> TypeNode raise ParseError {
   let check_type = self.parse_union_type()
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::KeywordExtends) {
     let start = check_type.span.start
     self.advance() |> ignore
@@ -1979,7 +1994,10 @@ fn Parser::parse_conditional_type(self : Parser) -> TypeNode raise ParseError {
 fn Parser::parse_union_type(self : Parser) -> TypeNode raise ParseError {
   let types : Array[TypeNode] = []
   types.push(self.parse_intersection_type())
-  while self.at(LexKind::Bar) {
+  while {
+          self.skip_doc_comments_in_expr()
+          self.at(LexKind::Bar)
+        } {
     self.advance() |> ignore
     types.push(self.parse_intersection_type())
   }
@@ -1999,7 +2017,10 @@ fn Parser::parse_union_type(self : Parser) -> TypeNode raise ParseError {
 fn Parser::parse_intersection_type(self : Parser) -> TypeNode raise ParseError {
   let types : Array[TypeNode] = []
   types.push(self.parse_type_operator())
-  while self.at(LexKind::Ampersand) {
+  while {
+          self.skip_doc_comments_in_expr()
+          self.at(LexKind::Ampersand)
+        } {
     self.advance() |> ignore
     types.push(self.parse_type_operator())
   }
@@ -2017,6 +2038,7 @@ fn Parser::parse_intersection_type(self : Parser) -> TypeNode raise ParseError {
 
 ///|
 fn Parser::parse_type_operator(self : Parser) -> TypeNode raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Identifier("keyof") => {
@@ -2055,6 +2077,7 @@ fn Parser::parse_type_operator(self : Parser) -> TypeNode raise ParseError {
 
 ///|
 fn Parser::parse_type_primary(self : Parser) -> TypeNode raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   let mut base = match tok.kind {
     KeywordVoid => {
@@ -2337,6 +2360,7 @@ fn Parser::parse_type_primary(self : Parser) -> TypeNode raise ParseError {
       let elements : Array[TupleElement] = []
       if !self.at(LexKind::RBracket) {
         for {
+          self.skip_doc_comments_in_expr()
           let start = self.current().start
           let mut is_rest = false
           if self.at(LexKind::DotDotDot) {
@@ -2390,6 +2414,7 @@ fn Parser::parse_type_primary(self : Parser) -> TypeNode raise ParseError {
               self.span_from(start, end),
             ),
           )
+          self.skip_doc_comments_in_expr()
           if self.at(LexKind::Comma) {
             self.advance() |> ignore
             if self.at(LexKind::RBracket) {
@@ -2429,6 +2454,7 @@ fn Parser::parse_type_primary(self : Parser) -> TypeNode raise ParseError {
       )
   }
   for {
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::LBracket) {
       if self.peek(1).kind == LexKind::RBracket {
         let start = base.span.start
@@ -2462,19 +2488,35 @@ fn Parser::parse_type_primary(self : Parser) -> TypeNode raise ParseError {
 fn Parser::looks_like_mapped_type(self : Parser) -> Bool {
   let mut i = self.index
   // Skip optional 'readonly'
+  while i < self.tokens.length() &&
+        self.tokens[i].kind is LexKind::DocComment(_) {
+    i = i + 1
+  }
   match self.tokens[i].kind {
     Identifier("readonly") => i = i + 1
     _ => ()
+  }
+  while i < self.tokens.length() &&
+        self.tokens[i].kind is LexKind::DocComment(_) {
+    i = i + 1
   }
   // Expect [
   if self.tokens[i].kind != LexKind::LBracket {
     return false
   }
   i = i + 1
+  while i < self.tokens.length() &&
+        self.tokens[i].kind is LexKind::DocComment(_) {
+    i = i + 1
+  }
   // Expect identifier
   match self.tokens[i].kind {
     Identifier(_) => i = i + 1
     _ => return false
+  }
+  while i < self.tokens.length() &&
+        self.tokens[i].kind is LexKind::DocComment(_) {
+    i = i + 1
   }
   // Expect 'in'
   self.tokens[i].kind == LexKind::KeywordIn
@@ -2485,6 +2527,7 @@ fn Parser::parse_mapped_type(
   self : Parser,
   start : Int,
 ) -> TypeNode raise ParseError {
+  self.skip_doc_comments_in_expr()
   let is_readonly = match self.current().kind {
     Identifier("readonly") => {
       self.advance() |> ignore
@@ -2537,6 +2580,7 @@ fn Parser::parse_mapped_type(
 
 ///|
 fn Parser::parse_import_type(self : Parser) -> TypeNode raise ParseError {
+  self.skip_doc_comments_in_expr()
   let start = self.expect(LexKind::KeywordImport).start
   self.expect(LexKind::LParen) |> ignore
   let arg_tok = self.current()
@@ -2595,7 +2639,9 @@ fn Parser::parse_template_literal_type(
   let spans : Array[TemplateLiteralTypeSpan] = []
   let mut end_start = start
   for {
+    self.skip_doc_comments_in_expr()
     let type_node = self.parse_type()
+    self.skip_doc_comments_in_expr()
     let tok = self.current()
     match tok.kind {
       TemplateMiddle(text, raw) => {
@@ -2647,6 +2693,7 @@ fn Parser::parse_type_reference(
   entity : EntityName,
   entity_end : Int,
 ) -> TypeNode raise ParseError {
+  self.skip_doc_comments_in_expr()
   let type_args = if self.at(LexKind::Lt) {
     Some(self.parse_type_arguments())
   } else {
@@ -2671,7 +2718,9 @@ fn Parser::parse_type_arguments(
   let args : Array[TypeNode] = []
   if !self.at(LexKind::Gt) {
     for {
+      self.skip_doc_comments_in_expr()
       args.push(self.parse_type())
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         continue
@@ -2691,12 +2740,14 @@ fn Parser::parse_type_parameters(
   let params : Array[TypeParameterDecl] = []
   if !self.at(LexKind::Gt) {
     for {
+      self.skip_doc_comments_in_expr()
       let variance_items : Array[ModifierKind] = []
       let mut variance_start : Int? = None
       let mut variance_end : Int? = None
       let mut seen_in = false
       let mut seen_out = false
       for {
+        self.skip_doc_comments_in_expr()
         let tok = self.current()
         match tok.kind {
           KeywordIn | Identifier("in") => {
@@ -2772,6 +2823,7 @@ fn Parser::parse_type_parameters(
       params.push(
         TypeParameterDecl::new(name, type_param_mods, constraint, default_type),
       )
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         continue
@@ -2785,6 +2837,7 @@ fn Parser::parse_type_parameters(
 
 ///|
 fn Parser::parse_identifier(self : Parser) -> Identifier raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Identifier(name) => {
@@ -2894,6 +2947,7 @@ fn keyword_text(kind : LexKind) -> String? {
 
 ///|
 fn Parser::parse_identifier_name(self : Parser) -> Identifier raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Identifier(name) => {
@@ -2929,6 +2983,7 @@ fn Parser::is_module_export_name_start(self : Parser) -> Bool {
 fn Parser::parse_module_export_name(
   self : Parser,
 ) -> Identifier raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     String(value) => {
@@ -2948,6 +3003,7 @@ fn Parser::parse_parameter_list(
   let params : Array[ParameterDecl] = []
   if !self.at(LexKind::RParen) {
     for {
+      self.skip_doc_comments_in_expr()
       let modifiers = if allow_modifiers {
         self.parse_parameter_modifiers(self.current().start)
       } else {
@@ -3011,6 +3067,7 @@ fn Parser::parse_parameter_list(
           ParseErrorKind::RestParameterMustBeLastInParameterList,
         )
       }
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         continue
@@ -3037,12 +3094,20 @@ fn Parser::looks_like_arrow_from_paren_at(
   let len = self.tokens.length()
   while i < len {
     match self.tokens[i].kind {
+      LexKind::DocComment(_) => {
+        i = i + 1
+        continue
+      }
       LexKind::LParen => depth = depth + 1
       LexKind::RParen => {
         depth = depth - 1
         if depth == 0 {
           if i + 1 < len {
-            return self.tokens[i + 1].kind == LexKind::Arrow
+            let mut j = i + 1
+            while j < len && self.tokens[j].kind is LexKind::DocComment(_) {
+              j = j + 1
+            }
+            return j < len && self.tokens[j].kind == LexKind::Arrow
           }
           return false
         }
@@ -3065,12 +3130,20 @@ fn Parser::looks_like_type_arguments(self : Parser) -> Bool {
   let len = self.tokens.length()
   while i < len {
     match self.tokens[i].kind {
+      LexKind::DocComment(_) => {
+        i = i + 1
+        continue
+      }
       LexKind::Lt => depth = depth + 1
       LexKind::Gt => {
         depth = depth - 1
         if depth == 0 {
           if i + 1 < len {
-            return self.tokens[i + 1].kind == LexKind::LParen
+            let mut j = i + 1
+            while j < len && self.tokens[j].kind is LexKind::DocComment(_) {
+              j = j + 1
+            }
+            return j < len && self.tokens[j].kind == LexKind::LParen
           }
           return false
         }
@@ -3093,12 +3166,20 @@ fn Parser::looks_like_function_type(self : Parser) -> Bool {
   let len = self.tokens.length()
   while i < len {
     match self.tokens[i].kind {
+      LexKind::DocComment(_) => {
+        i = i + 1
+        continue
+      }
       LexKind::LParen => depth = depth + 1
       LexKind::RParen => {
         depth = depth - 1
         if depth == 0 {
           if i + 1 < len {
-            return self.tokens[i + 1].kind == LexKind::Arrow
+            let mut j = i + 1
+            while j < len && self.tokens[j].kind is LexKind::DocComment(_) {
+              j = j + 1
+            }
+            return j < len && self.tokens[j].kind == LexKind::Arrow
           }
           return false
         }
@@ -3118,7 +3199,10 @@ fn Parser::parse_entity_name(
 ) -> (EntityName, Int) raise ParseError {
   let mut current = EntityName::Identifier(first)
   let mut end_start = first.span.end
-  while self.at(LexKind::Dot) {
+  while {
+          self.skip_doc_comments_in_expr()
+          self.at(LexKind::Dot)
+        } {
     self.advance() |> ignore
     let right = self.parse_identifier()
     end_start = right.span.end
@@ -3131,6 +3215,7 @@ fn Parser::parse_entity_name(
 fn Parser::parse_type_parameter_list(
   self : Parser,
 ) -> NodeArray[TypeParameterDecl]? raise ParseError {
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::Lt) {
     Some(self.parse_type_parameters())
   } else {
@@ -3142,6 +3227,7 @@ fn Parser::parse_type_parameter_list(
 fn Parser::parse_binding_name(
   self : Parser,
 ) -> (BindingName, Span) raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     LBrace => {
@@ -3182,6 +3268,7 @@ fn Parser::parse_object_binding_elements(
   let elements : Array[BindingElement] = []
   if !self.at(LexKind::RBrace) {
     for {
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::DotDotDot) {
         self.advance() |> ignore
         let (name, _) = self.parse_binding_name()
@@ -3236,6 +3323,7 @@ fn Parser::parse_object_binding_elements(
           }
         }
       }
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         if self.at(LexKind::RBrace) {
@@ -3256,6 +3344,7 @@ fn Parser::parse_array_binding_elements(
   let elements : Array[ArrayBindingElement] = []
   if !self.at(LexKind::RBracket) {
     for {
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         elements.push(ArrayBindingElement::OmittedExpr)
@@ -3288,6 +3377,7 @@ fn Parser::parse_array_binding_elements(
         let element = BindingElement::new(name, None, false, initializer)
         elements.push(ArrayBindingElement::BindingElement(element))
       }
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         if self.at(LexKind::RBracket) {
@@ -3384,13 +3474,18 @@ fn Parser::parse_type_literal_members(
     let member_doc = self.take_doc_comment()
     let name = self.parse_property_name()
     let mut is_optional = false
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Question) {
       self.advance() |> ignore
       is_optional = true
     }
     match name {
       PropertyName::Identifier(id) =>
-        if id.text == "get" && !self.at(LexKind::Colon) {
+        if id.text == "get" &&
+          {
+            self.skip_doc_comments_in_expr()
+            !self.at(LexKind::Colon)
+          } {
           let accessor_name = self.parse_property_name()
           let params = self.parse_parameter_list(false)
           let type_node = if self.at(LexKind::Colon) {
@@ -3413,7 +3508,11 @@ fn Parser::parse_type_literal_members(
             ),
           )
           continue
-        } else if id.text == "set" && !self.at(LexKind::Colon) {
+        } else if id.text == "set" &&
+          {
+            self.skip_doc_comments_in_expr()
+            !self.at(LexKind::Colon)
+          } {
           let accessor_name = self.parse_property_name()
           let params = self.parse_parameter_list(false)
           members.push(
@@ -3432,6 +3531,7 @@ fn Parser::parse_type_literal_members(
         }
       _ => ()
     }
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::LParen) {
       let type_params = self.parse_type_parameter_list()
       let params = self.parse_parameter_list(false)
@@ -3467,6 +3567,7 @@ fn Parser::parse_type_literal_members(
 
 ///|
 fn Parser::parse_property_name(self : Parser) -> PropertyName raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Identifier(_) => {
@@ -3514,6 +3615,7 @@ fn Parser::parse_array_literal(
   let elements : Array[Expr] = []
   if !self.at(LexKind::RBracket) {
     for {
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         let comma = self.advance()
         elements.push(
@@ -3532,6 +3634,7 @@ fn Parser::parse_array_literal(
       } else {
         elements.push(self.parse_assignment_expr())
       }
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         if self.at(LexKind::RBracket) {
@@ -3558,6 +3661,7 @@ fn Parser::parse_object_literal(
   let elements : Array[ObjectLiteralElementLike] = []
   if !self.at(LexKind::RBrace) {
     for {
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::DotDotDot) {
         self.advance() |> ignore
         let expr = self.parse_assignment_expr()
@@ -3571,6 +3675,7 @@ fn Parser::parse_object_literal(
         let name_tok = self.current()
         let prop_name = self.parse_property_name()
         let mut is_optional = false
+        self.skip_doc_comments_in_expr()
         if self.at(LexKind::Question) {
           self.advance() |> ignore
           is_optional = true
@@ -3578,7 +3683,11 @@ fn Parser::parse_object_literal(
         if !is_generator {
           match prop_name {
             PropertyName::Identifier(id) =>
-              if id.text == "get" && !self.at(LexKind::Colon) {
+              if id.text == "get" &&
+                {
+                  self.skip_doc_comments_in_expr()
+                  !self.at(LexKind::Colon)
+                } {
                 let accessor_name = self.parse_property_name()
                 let params = self.parse_parameter_list(false)
                 let type_node = if self.at(LexKind::Colon) {
@@ -3610,7 +3719,11 @@ fn Parser::parse_object_literal(
                   break
                 }
                 continue
-              } else if id.text == "set" && !self.at(LexKind::Colon) {
+              } else if id.text == "set" &&
+                {
+                  self.skip_doc_comments_in_expr()
+                  !self.at(LexKind::Colon)
+                } {
                 let accessor_name = self.parse_property_name()
                 let params = self.parse_parameter_list(false)
                 let (body, _) = self.parse_block_with_function_context(
@@ -3639,6 +3752,7 @@ fn Parser::parse_object_literal(
             _ => ()
           }
         }
+        self.skip_doc_comments_in_expr()
         if self.at(LexKind::Colon) {
           self.advance() |> ignore
           let value = self.parse_assignment_expr()
@@ -3647,7 +3761,10 @@ fn Parser::parse_object_literal(
               PropertyAssignment::new(prop_name, value),
             ),
           )
-        } else if self.at(LexKind::LParen) {
+        } else if {
+            self.skip_doc_comments_in_expr()
+            self.at(LexKind::LParen)
+          } {
           let params = self.parse_parameter_list(false)
           let type_node = if self.at(LexKind::Colon) {
             self.advance() |> ignore
@@ -3691,6 +3808,7 @@ fn Parser::parse_object_literal(
           }
         }
       }
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         if self.at(LexKind::RBrace) {
@@ -3712,17 +3830,21 @@ fn Parser::parse_object_literal(
 ///|
 fn Parser::parse_new_expr(self : Parser, start : Int) -> Expr raise ParseError {
   let callee = self.parse_starttfix_expr()
+  self.skip_doc_comments_in_expr()
   let type_args = if self.looks_like_type_arguments() {
     Some(self.parse_type_arguments())
   } else {
     None
   }
+  self.skip_doc_comments_in_expr()
   let args = if self.at(LexKind::LParen) {
     let open = self.advance()
     let list : Array[Expr] = []
     if !self.at(LexKind::RParen) {
       for {
+        self.skip_doc_comments_in_expr()
         list.push(self.parse_assignment_expr())
+        self.skip_doc_comments_in_expr()
         if self.at(LexKind::Comma) {
           self.advance() |> ignore
           continue
@@ -3792,7 +3914,9 @@ fn Parser::parse_template_expr(
   let spans : Array[TemplateSpan] = []
   let mut end_start = start
   for {
+    self.skip_doc_comments_in_expr()
     let expr = self.parse_expr()
+    self.skip_doc_comments_in_expr()
     let tok = self.current()
     match tok.kind {
       TemplateMiddle(text, raw) => {
@@ -3857,6 +3981,7 @@ fn Parser::parse_expr_with_type_arguments(
   self : Parser,
 ) -> ExprWithTypeArguments raise ParseError {
   let expr = self.parse_starttfix_expr()
+  self.skip_doc_comments_in_expr()
   let type_args = if self.at(LexKind::Lt) && self.looks_like_type_arguments() {
     Some(self.parse_type_arguments())
   } else {
@@ -3874,6 +3999,7 @@ fn Parser::parse_heritage_clause(
   let types : Array[ExprWithTypeArguments] = []
   for {
     types.push(self.parse_expr_with_type_arguments())
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Comma) {
       self.advance() |> ignore
       continue
@@ -3986,11 +4112,13 @@ fn Parser::parse_class_elements(
     let member_doc = self.take_doc_comment()
     let prop_name = self.parse_property_name()
     let mut is_optional = false
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Question) {
       self.advance() |> ignore
       is_optional = true
     }
     let mut is_definite = false
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Bang) {
       self.advance() |> ignore
       is_definite = true
@@ -3998,7 +4126,11 @@ fn Parser::parse_class_elements(
     if !is_generator {
       match prop_name {
         PropertyName::Identifier(id) =>
-          if id.text == "get" && !self.at(LexKind::Colon) {
+          if id.text == "get" &&
+            {
+              self.skip_doc_comments_in_expr()
+              !self.at(LexKind::Colon)
+            } {
             let accessor_name = self.parse_property_name()
             let params = self.parse_parameter_list(false)
             let type_node = if self.at(LexKind::Colon) {
@@ -4028,7 +4160,11 @@ fn Parser::parse_class_elements(
             )
             members.push(ClassElement::GetAccessor(get_decl))
             continue
-          } else if id.text == "set" && !self.at(LexKind::Colon) {
+          } else if id.text == "set" &&
+            {
+              self.skip_doc_comments_in_expr()
+              !self.at(LexKind::Colon)
+            } {
             let accessor_name = self.parse_property_name()
             let params = self.parse_parameter_list(false)
             let body = if self.at(LexKind::LBrace) {
@@ -4055,12 +4191,14 @@ fn Parser::parse_class_elements(
         _ => ()
       }
     }
+    self.skip_doc_comments_in_expr()
     let type_params = if self.at(LexKind::Lt) &&
       self.looks_like_type_arguments() {
       Some(self.parse_type_parameters())
     } else {
       None
     }
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::LParen) {
       if !is_generator {
         match prop_name {
@@ -4203,6 +4341,7 @@ fn Parser::parse_class_expr(
 
 ///|
 fn Parser::parse_primary_expr(self : Parser) -> Expr raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Identifier(name) => {
@@ -4438,7 +4577,9 @@ fn Parser::parse_primary_expr(self : Parser) -> Expr raise ParseError {
         let args : Array[Expr] = []
         if !self.at(LexKind::RParen) {
           for {
+            self.skip_doc_comments_in_expr()
             args.push(self.parse_assignment_expr())
+            self.skip_doc_comments_in_expr()
             if self.at(LexKind::Comma) {
               self.advance() |> ignore
               continue
@@ -4471,6 +4612,7 @@ fn Parser::parse_primary_expr(self : Parser) -> Expr raise ParseError {
 fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
   let mut expr = self.parse_primary_expr()
   for {
+    self.skip_doc_comments_in_expr()
     let tok = self.current()
     match tok.kind {
       Lt => {
@@ -4482,6 +4624,7 @@ fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
             let args : Array[Expr] = []
             if !self.at(LexKind::RParen) {
               for {
+                self.skip_doc_comments_in_expr()
                 if self.at(LexKind::DotDotDot) {
                   let spread_tok = self.advance()
                   let arg = self.parse_assignment_expr()
@@ -4490,6 +4633,7 @@ fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
                 } else {
                   args.push(self.parse_assignment_expr())
                 }
+                self.skip_doc_comments_in_expr()
                 if self.at(LexKind::Comma) {
                   self.advance() |> ignore
                   continue
@@ -4526,6 +4670,7 @@ fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
           let args : Array[Expr] = []
           if !self.at(LexKind::RParen) {
             for {
+              self.skip_doc_comments_in_expr()
               if self.at(LexKind::DotDotDot) {
                 let spread_tok = self.advance()
                 let arg = self.parse_assignment_expr()
@@ -4534,6 +4679,7 @@ fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
               } else {
                 args.push(self.parse_assignment_expr())
               }
+              self.skip_doc_comments_in_expr()
               if self.at(LexKind::Comma) {
                 self.advance() |> ignore
                 continue
@@ -4579,6 +4725,7 @@ fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
         let args : Array[Expr] = []
         if !self.at(LexKind::RParen) {
           for {
+            self.skip_doc_comments_in_expr()
             if self.at(LexKind::DotDotDot) {
               let spread_tok = self.advance()
               let arg = self.parse_assignment_expr()
@@ -4587,6 +4734,7 @@ fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
             } else {
               args.push(self.parse_assignment_expr())
             }
+            self.skip_doc_comments_in_expr()
             if self.at(LexKind::Comma) {
               self.advance() |> ignore
               continue
@@ -4656,6 +4804,7 @@ fn Parser::parse_starttfix_expr(self : Parser) -> Expr raise ParseError {
 
 ///|
 fn Parser::parse_unary_expr(self : Parser) -> Expr raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Lt => {
@@ -4857,6 +5006,7 @@ fn Parser::parse_binary_expr(
 ) -> Expr raise ParseError {
   let mut left = self.parse_unary_expr()
   for {
+    self.skip_doc_comments_in_expr()
     let tok = self.current()
     let prec = binary_precedence(tok.kind)
     if prec < min_prec || prec == 0 {
@@ -4888,6 +5038,7 @@ fn Parser::parse_binary_expr_no_in(
 ) -> Expr raise ParseError {
   let mut left = self.parse_unary_expr()
   for {
+    self.skip_doc_comments_in_expr()
     let tok = self.current()
     let prec = binary_precedence_no_in(tok.kind)
     if prec < min_prec || prec == 0 {
@@ -4915,6 +5066,7 @@ fn Parser::parse_binary_expr_no_in(
 ///|
 fn Parser::parse_conditional_expr(self : Parser) -> Expr raise ParseError {
   let condition = self.parse_binary_expr(1)
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::Question) {
     let start = condition.span.start
     self.advance() |> ignore
@@ -4931,6 +5083,7 @@ fn Parser::parse_conditional_expr(self : Parser) -> Expr raise ParseError {
 ///|
 fn Parser::parse_conditional_expr_no_in(self : Parser) -> Expr raise ParseError {
   let condition = self.parse_binary_expr_no_in(1)
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::Question) {
     let start = condition.span.start
     self.advance() |> ignore
@@ -4947,7 +5100,11 @@ fn Parser::parse_conditional_expr_no_in(self : Parser) -> Expr raise ParseError 
 ///|
 fn Parser::parse_as_expr(self : Parser) -> Expr raise ParseError {
   let mut expr = self.parse_conditional_expr()
-  while self.at(LexKind::KeywordAs) || self.at(LexKind::KeywordSatisfies) {
+  for {
+    self.skip_doc_comments_in_expr()
+    if !(self.at(LexKind::KeywordAs) || self.at(LexKind::KeywordSatisfies)) {
+      break
+    }
     let start = expr.span.start
     let is_satisfies = self.at(LexKind::KeywordSatisfies)
     self.advance() |> ignore
@@ -4962,6 +5119,7 @@ fn Parser::parse_as_expr(self : Parser) -> Expr raise ParseError {
       expr = Expr::new(ExprKind::AsExpr(AsExpr::new(expr, type_node)), span)
     }
   }
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::Question) {
     let start = expr.span.start
     self.advance() |> ignore
@@ -4978,7 +5136,11 @@ fn Parser::parse_as_expr(self : Parser) -> Expr raise ParseError {
 ///|
 fn Parser::parse_as_expr_no_in(self : Parser) -> Expr raise ParseError {
   let mut expr = self.parse_conditional_expr_no_in()
-  while self.at(LexKind::KeywordAs) || self.at(LexKind::KeywordSatisfies) {
+  for {
+    self.skip_doc_comments_in_expr()
+    if !(self.at(LexKind::KeywordAs) || self.at(LexKind::KeywordSatisfies)) {
+      break
+    }
     let start = expr.span.start
     let is_satisfies = self.at(LexKind::KeywordSatisfies)
     self.advance() |> ignore
@@ -4993,6 +5155,7 @@ fn Parser::parse_as_expr_no_in(self : Parser) -> Expr raise ParseError {
       expr = Expr::new(ExprKind::AsExpr(AsExpr::new(expr, type_node)), span)
     }
   }
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::Question) {
     let start = expr.span.start
     self.advance() |> ignore
@@ -5008,6 +5171,7 @@ fn Parser::parse_as_expr_no_in(self : Parser) -> Expr raise ParseError {
 
 ///|
 fn Parser::parse_assignment_expr(self : Parser) -> Expr raise ParseError {
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::KeywordYield) {
     if self.in_generator == 0 {
       let tok = self.current()
@@ -5056,6 +5220,7 @@ fn Parser::parse_assignment_expr(self : Parser) -> Expr raise ParseError {
 
 ///|
 fn Parser::parse_assignment_expr_no_in(self : Parser) -> Expr raise ParseError {
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::KeywordYield) {
     if self.in_generator == 0 {
       let tok = self.current()
@@ -5105,6 +5270,7 @@ fn Parser::parse_assignment_expr_no_in(self : Parser) -> Expr raise ParseError {
 ///|
 fn Parser::parse_expr(self : Parser) -> Expr raise ParseError {
   let first = self.parse_assignment_expr()
+  self.skip_doc_comments_in_expr()
   if !self.at(LexKind::Comma) {
     return first
   }
@@ -5112,6 +5278,7 @@ fn Parser::parse_expr(self : Parser) -> Expr raise ParseError {
   let mut end_start = first.span.end
   while self.at(LexKind::Comma) {
     self.advance() |> ignore
+    self.skip_doc_comments_in_expr()
     let expr = self.parse_assignment_expr()
     end_start = expr.span.end
     expressions.push(expr)
@@ -5128,6 +5295,7 @@ fn Parser::parse_expr(self : Parser) -> Expr raise ParseError {
 ///|
 fn Parser::parse_expr_no_in(self : Parser) -> Expr raise ParseError {
   let first = self.parse_assignment_expr_no_in()
+  self.skip_doc_comments_in_expr()
   if !self.at(LexKind::Comma) {
     return first
   }
@@ -5135,6 +5303,7 @@ fn Parser::parse_expr_no_in(self : Parser) -> Expr raise ParseError {
   let mut end_start = first.span.end
   while self.at(LexKind::Comma) {
     self.advance() |> ignore
+    self.skip_doc_comments_in_expr()
     let expr = self.parse_assignment_expr_no_in()
     end_start = expr.span.end
     expressions.push(expr)
@@ -5156,13 +5325,16 @@ fn Parser::parse_variable_decl_list(
 ) -> NodeArray[VariableDecl] raise ParseError {
   let decls : Array[VariableDecl] = []
   for {
+    self.skip_doc_comments_in_expr()
     let (binding, _) = self.parse_binding_name()
+    self.skip_doc_comments_in_expr()
     let type_node = if self.at(LexKind::Colon) {
       self.advance() |> ignore
       Some(self.parse_type())
     } else {
       None
     }
+    self.skip_doc_comments_in_expr()
     let initializer = if self.at(LexKind::Eq) {
       self.advance() |> ignore
       Some(self.parse_assignment_expr())
@@ -5171,6 +5343,7 @@ fn Parser::parse_variable_decl_list(
     }
     let decl = VariableDecl::new(kind, binding, type_node, initializer)
     decls.push(decl)
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Comma) {
       self.advance() |> ignore
       continue
@@ -5196,17 +5369,21 @@ fn Parser::parse_using_decl_list(
 ) -> NodeArray[UsingDecl] raise ParseError {
   let decls : Array[UsingDecl] = []
   for {
+    self.skip_doc_comments_in_expr()
     let name = self.parse_identifier()
+    self.skip_doc_comments_in_expr()
     let type_node = if self.at(LexKind::Colon) {
       self.advance() |> ignore
       Some(self.parse_type())
     } else {
       None
     }
+    self.skip_doc_comments_in_expr()
     self.expect(LexKind::Eq) |> ignore
     let initializer = self.parse_assignment_expr()
     let decl = UsingDecl::new(name, type_node, Some(initializer))
     decls.push(decl)
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Comma) {
       self.advance() |> ignore
       continue
@@ -5992,6 +6169,7 @@ fn Parser::parse_enum_decl(self : Parser) -> Stmt raise ParseError {
 
 ///|
 fn Parser::parse_module_name(self : Parser) -> ModuleName raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Identifier(_) => ModuleName::Identifier(self.parse_identifier())
@@ -6165,6 +6343,7 @@ fn Parser::parse_global_module_decl(self : Parser) -> Stmt raise ParseError {
 fn Parser::parse_import_attribute_name(
   self : Parser,
 ) -> ImportAttributeName raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     Identifier(_) => ImportAttributeName::Identifier(self.parse_identifier())
@@ -6189,11 +6368,13 @@ fn Parser::parse_import_attributes(
   if self.has_preceding_line_break() {
     return None
   }
+  self.skip_doc_comments_in_expr()
   if !self.at(LexKind::KeywordWith) && !self.at(LexKind::KeywordAssert) {
     return None
   }
   let start = self.advance().start
   self.expect(LexKind::LBrace) |> ignore
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::Comma) {
     let tok = self.current()
     raise self.parse_error_at(
@@ -6204,6 +6385,7 @@ fn Parser::parse_import_attributes(
   }
   let items : Array[ImportAttribute] = []
   while !self.at(LexKind::RBrace) && !self.at(LexKind::Eof) {
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Comma) {
       self.advance() |> ignore
       continue
@@ -6212,6 +6394,7 @@ fn Parser::parse_import_attributes(
     self.expect(LexKind::Colon) |> ignore
     let value = self.parse_assignment_expr()
     items.push(ImportAttribute::new(name, value))
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Comma) {
       self.advance() |> ignore
       continue
@@ -6224,6 +6407,7 @@ fn Parser::parse_import_attributes(
 
 ///|
 fn Parser::parse_module_specifier(self : Parser) -> Expr raise ParseError {
+  self.skip_doc_comments_in_expr()
   let tok = self.current()
   match tok.kind {
     String(value) => {
@@ -6247,6 +6431,7 @@ fn Parser::parse_module_specifier(self : Parser) -> Expr raise ParseError {
 fn Parser::parse_import_specifier(
   self : Parser,
 ) -> ImportSpecifier raise ParseError {
+  self.skip_doc_comments_in_expr()
   let mut is_type_only = false
   let mut property_name : Identifier? = None
   let mut can_parse_as_keyword = true
@@ -6294,6 +6479,7 @@ fn Parser::parse_import_specifier(
 fn Parser::parse_named_import_bindings(
   self : Parser,
 ) -> NamedImportBindings raise ParseError {
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::Star) {
     self.advance() |> ignore
     self.expect(LexKind::KeywordAs) |> ignore
@@ -6311,11 +6497,13 @@ fn Parser::parse_named_import_bindings(
   }
   let specifiers : Array[ImportSpecifier] = []
   while !self.at(LexKind::RBrace) && !self.at(LexKind::Eof) {
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Comma) {
       self.advance() |> ignore
       continue
     }
     specifiers.push(self.parse_import_specifier())
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Comma) {
       self.advance() |> ignore
       continue
@@ -6332,6 +6520,7 @@ fn Parser::parse_named_import_bindings(
 fn Parser::parse_import_equals_module_ref(
   self : Parser,
 ) -> ImportEqualsModuleRef raise ParseError {
+  self.skip_doc_comments_in_expr()
   match self.current().kind {
     Identifier(name) if name == "require" &&
       self.peek(1).kind == LexKind::LParen => {
@@ -6378,6 +6567,7 @@ fn Parser::parse_import_decl(self : Parser) -> Stmt raise ParseError {
   self.has_import_syntax = true
   let mut phase = ImportPhase::Normal
   let mut is_type_only = false
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::KeywordType) {
     let mut is_phase = true
     if self.peek(1).kind == LexKind::KeywordFrom {
@@ -6415,6 +6605,7 @@ fn Parser::parse_import_decl(self : Parser) -> Stmt raise ParseError {
   }
   let mut name : Identifier? = None
   let mut named_bindings : NamedImportBindings? = None
+  self.skip_doc_comments_in_expr()
   if self.current().kind is Identifier(_) {
     let id = self.parse_identifier()
     if self.at(LexKind::Eq) {
@@ -6429,6 +6620,7 @@ fn Parser::parse_import_decl(self : Parser) -> Stmt raise ParseError {
       return self.parse_import_equals_decl(start, is_type_only, id)
     }
     name = Some(id)
+    self.skip_doc_comments_in_expr()
     if self.at(LexKind::Comma) {
       self.advance() |> ignore
       named_bindings = Some(self.parse_named_import_bindings())
@@ -6457,6 +6649,7 @@ fn Parser::parse_import_decl(self : Parser) -> Stmt raise ParseError {
 fn Parser::parse_export_specifier(
   self : Parser,
 ) -> ExportSpecifier raise ParseError {
+  self.skip_doc_comments_in_expr()
   let mut is_type_only = false
   let mut property_name : Identifier? = None
   let mut can_parse_as_keyword = true
@@ -6520,6 +6713,7 @@ fn Parser::parse_namespace_export_decl(
 fn Parser::parse_export_decl(self : Parser) -> Stmt raise ParseError {
   let start = self.expect(LexKind::KeywordExport).start
   self.has_export_syntax = true
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::Eq) {
     if !(self.script_kind is TSDeclarations) {
       raise self.parse_error_at(
@@ -6611,6 +6805,7 @@ fn Parser::parse_export_decl(self : Parser) -> Stmt raise ParseError {
     }
   }
   let mods = self.node_array(items, start, end_start)
+  self.skip_doc_comments_in_expr()
   if self.at(LexKind::KeywordConst) && self.peek(1).kind == LexKind::KeywordEnum {
     self.mark_non_namespace_export(start, self.current().end)
     let const_tok = self.advance()
@@ -6696,11 +6891,13 @@ fn Parser::parse_export_decl(self : Parser) -> Stmt raise ParseError {
     }
     let specifiers : Array[ExportSpecifier] = []
     while !self.at(LexKind::RBrace) && !self.at(LexKind::Eof) {
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         continue
       }
       specifiers.push(self.parse_export_specifier())
+      self.skip_doc_comments_in_expr()
       if self.at(LexKind::Comma) {
         self.advance() |> ignore
         continue

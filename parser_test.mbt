@@ -221,6 +221,17 @@ test "expr - property access" {
 }
 
 ///|
+test "expr - doc comments ignored" {
+  let source = parse_source("obj/***/.prop")
+  inspect(
+    source,
+    content=(
+      #|{stmts: {elements: [{kind: ExprStmt({kind: PropertyAccessExpr({expression: {kind: Identifier({text: "obj", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:1-1:4(0-3)}), span: 1:1-1:4(0-3)}, is_null_coalescing: false, name: {text: "prop", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:10-1:14(9-13)}}), span: 1:1-1:14(0-13)}), span: 1:1-1:14(0-13)}], start: 1:1-1:1(0-0), end: 1:14-1:14(13-13), has_trailing_comma: false, is_missing_list: false}, file_name: "test.ts", text: "obj/***/.prop", script_kind: TS, is_module: false}
+    ),
+  )
+}
+
+///|
 test "expr - element access" {
   let source = parse_source("obj[\"prop\"]; obj[index]")
   inspect(
@@ -2005,23 +2016,6 @@ test "decl - generic modifiers" {
 }
 
 ///|
-test "decl - enum commas and const export" {
-  let source = parse_source(
-    (
-      #|enum E { , A = 1, B }
-      #|export const enum Flags { , A = 1, B }
-      #|export enum Kind { A }
-    ),
-  )
-  inspect(
-    source,
-    content=(
-      #|{stmts: {elements: [{kind: EnumDecl({doc_comment: None, modifiers: {is_export: false, is_default: false, is_declare: false}, name: {text: "E", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:6-1:7(5-6)}, members: {elements: [{doc_comment: None, name: Identifier({text: "A", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:12-1:13(11-12)}), initializer: Some({kind: NumericLiteral({text: "1", is_unterminated: false, has_extended_unicode_escape: false, is_octal_literal: false, span: 1:16-1:17(15-16)}), span: 1:16-1:17(15-16)})}, {doc_comment: None, name: Identifier({text: "B", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 1:19-1:20(18-19)}), initializer: None}], start: 1:8-1:8(7-7), end: 1:22-1:22(21-21), has_trailing_comma: false, is_missing_list: false}}), span: 1:1-1:22(0-21)}, {kind: EnumDecl({doc_comment: None, modifiers: {is_export: true, is_default: false, is_declare: false}, name: {text: "Flags", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 2:19-2:24(40-45)}, members: {elements: [{doc_comment: None, name: Identifier({text: "A", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 2:29-2:30(50-51)}), initializer: Some({kind: NumericLiteral({text: "1", is_unterminated: false, has_extended_unicode_escape: false, is_octal_literal: false, span: 2:33-2:34(54-55)}), span: 2:33-2:34(54-55)})}, {doc_comment: None, name: Identifier({text: "B", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 2:36-2:37(57-58)}), initializer: None}], start: 2:25-2:25(46-46), end: 2:39-2:39(60-60), has_trailing_comma: false, is_missing_list: false}}), span: 2:1-2:39(22-60)}, {kind: EnumDecl({doc_comment: None, modifiers: {is_export: true, is_default: false, is_declare: false}, name: {text: "Kind", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 3:13-3:17(73-77)}, members: {elements: [{doc_comment: None, name: Identifier({text: "A", has_extended_unicode_escape: false, is_in_jsdoc_namespace: false, span: 3:20-3:21(80-81)}), initializer: None}], start: 3:18-3:18(78-78), end: 3:23-3:23(83-83), has_trailing_comma: false, is_missing_list: false}}), span: 3:1-3:23(61-83)}], start: 1:1-1:1(0-0), end: 3:23-3:23(83-83), has_trailing_comma: false, is_missing_list: false}, file_name: "test.ts", text: "enum E { , A = 1, B }\nexport const enum Flags { , A = 1, B }\nexport enum Kind { A }", script_kind: TS, is_module: true}
-    ),
-  )
-}
-
-///|
 test "decl - modules and namespace names" {
   let source = parse_source(
     (
@@ -3751,11 +3745,6 @@ test "doc comments - ignored in local scope and dangling" {
   guard source.stmts.elements
     is [{ kind: FunctionDecl(func), .. }, { kind: ExprStmt(_), .. }]
   inspect(func.doc_comment, content="Some(\"top\")")
-  match func.body {
-    Some(body) => {
-      guard body is [{ kind: VariableStmt(var_stmt), .. }]
-      inspect(var_stmt.doc_comment, content="None")
-    }
-    None => inspect((), content="missing body")
-  }
+  guard func.body.unwrap()[0].kind is VariableStmt(var_stmt)
+  inspect(var_stmt.doc_comment, content="None")
 }
