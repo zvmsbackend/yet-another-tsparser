@@ -185,6 +185,7 @@ pub impl Eq for CatchClause
 pub impl Show for CatchClause
 
 pub struct ClassDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : TopLevelModifiers
   name : Identifier?
@@ -192,7 +193,7 @@ pub struct ClassDecl {
   heritage_clauses : NodeArray[HeritageClause]?
   members : NodeArray[ClassElement]
 }
-pub fn ClassDecl::new(NodeArray[Expr]?, TopLevelModifiers, Identifier?, NodeArray[TypeParameterDecl]?, NodeArray[HeritageClause]?, NodeArray[ClassElement]) -> Self
+pub fn ClassDecl::new(String?, NodeArray[Expr]?, TopLevelModifiers, Identifier?, NodeArray[TypeParameterDecl]?, NodeArray[HeritageClause]?, NodeArray[ClassElement]) -> Self
 pub impl Eq for ClassDecl
 pub impl Show for ClassDecl
 
@@ -269,11 +270,12 @@ pub impl Eq for ConstructSignatureDecl
 pub impl Show for ConstructSignatureDecl
 
 pub struct ConstructorDecl {
+  doc_comment : String?
   modifiers : ClassMemberModifiers
   parameters : NodeArray[ParameterDecl]
   body : Array[Stmt]?
 }
-pub fn ConstructorDecl::new(ClassMemberModifiers, NodeArray[ParameterDecl], Array[Stmt]?) -> Self
+pub fn ConstructorDecl::new(String?, ClassMemberModifiers, NodeArray[ParameterDecl], Array[Stmt]?) -> Self
 pub impl Eq for ConstructorDecl
 pub impl Show for ConstructorDecl
 
@@ -312,19 +314,21 @@ pub impl Eq for EntityName
 pub impl Show for EntityName
 
 pub struct EnumDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   name : Identifier
   members : NodeArray[EnumMember]
 }
-pub fn EnumDecl::new(TopLevelModifiers, Identifier, NodeArray[EnumMember]) -> Self
+pub fn EnumDecl::new(String?, TopLevelModifiers, Identifier, NodeArray[EnumMember]) -> Self
 pub impl Eq for EnumDecl
 pub impl Show for EnumDecl
 
 pub struct EnumMember {
+  doc_comment : String?
   name : PropertyName
   initializer : Expr?
 }
-pub fn EnumMember::new(PropertyName, Expr?) -> Self
+pub fn EnumMember::new(String?, PropertyName, Expr?) -> Self
 pub impl Eq for EnumMember
 pub impl Show for EnumMember
 
@@ -456,6 +460,7 @@ pub impl Eq for ForStmt
 pub impl Show for ForStmt
 
 pub struct FunctionDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   is_async : Bool
   is_generator : Bool
@@ -465,7 +470,7 @@ pub struct FunctionDecl {
   type_node : TypeNode?
   body : Array[Stmt]?
 }
-pub fn FunctionDecl::new(TopLevelModifiers, Bool, Bool, Identifier?, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
+pub fn FunctionDecl::new(String?, TopLevelModifiers, Bool, Bool, Identifier?, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
 pub impl Eq for FunctionDecl
 pub impl Show for FunctionDecl
 
@@ -492,6 +497,7 @@ pub impl Eq for FunctionTypeNode
 pub impl Show for FunctionTypeNode
 
 pub struct GetAccessorDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : ClassMemberModifiers
   name : PropertyName
@@ -499,7 +505,7 @@ pub struct GetAccessorDecl {
   type_node : TypeNode?
   body : Array[Stmt]?
 }
-pub fn GetAccessorDecl::new(NodeArray[Expr]?, ClassMemberModifiers, PropertyName, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
+pub fn GetAccessorDecl::new(String?, NodeArray[Expr]?, ClassMemberModifiers, PropertyName, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
 pub impl Eq for GetAccessorDecl
 pub impl Show for GetAccessorDecl
 
@@ -638,13 +644,14 @@ pub impl Eq for IndexedAccessTypeNode
 pub impl Show for IndexedAccessTypeNode
 
 pub struct InterfaceDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   name : Identifier
   type_parameters : NodeArray[TypeParameterDecl]?
   heritage_clauses : NodeArray[HeritageClause]?
   members : NodeArray[TypeElement]
 }
-pub fn InterfaceDecl::new(TopLevelModifiers, Identifier, NodeArray[TypeParameterDecl]?, NodeArray[HeritageClause]?, NodeArray[TypeElement]) -> Self
+pub fn InterfaceDecl::new(String?, TopLevelModifiers, Identifier, NodeArray[TypeParameterDecl]?, NodeArray[HeritageClause]?, NodeArray[TypeElement]) -> Self
 pub impl Eq for InterfaceDecl
 pub impl Show for InterfaceDecl
 
@@ -662,6 +669,7 @@ pub enum LexKind {
   Number(String)
   String(String)
   Regex(String)
+  DocComment(String)
   NoSubTemplate(String, String)
   TemplateHead(String, String)
   TemplateMiddle(String, String)
@@ -807,6 +815,7 @@ pub impl Eq for MetaPropertyKind
 pub impl Show for MetaPropertyKind
 
 pub struct MethodDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : ClassMemberModifiers
   is_generator : Bool
@@ -817,18 +826,19 @@ pub struct MethodDecl {
   type_node : TypeNode?
   body : Array[Stmt]?
 }
-pub fn MethodDecl::new(NodeArray[Expr]?, ClassMemberModifiers, Bool, PropertyName, Bool, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
+pub fn MethodDecl::new(String?, NodeArray[Expr]?, ClassMemberModifiers, Bool, PropertyName, Bool, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?, Array[Stmt]?) -> Self
 pub impl Eq for MethodDecl
 pub impl Show for MethodDecl
 
 pub struct MethodSignature {
+  doc_comment : String?
   name : PropertyName
   is_optional : Bool
   type_parameters : NodeArray[TypeParameterDecl]?
   parameters : NodeArray[ParameterDecl]
   type_node : TypeNode?
 }
-pub fn MethodSignature::new(PropertyName, Bool, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?) -> Self
+pub fn MethodSignature::new(String?, PropertyName, Bool, NodeArray[TypeParameterDecl]?, NodeArray[ParameterDecl], TypeNode?) -> Self
 pub impl Eq for MethodSignature
 pub impl Show for MethodSignature
 
@@ -859,11 +869,12 @@ pub impl Eq for ModuleBody
 pub impl Show for ModuleBody
 
 pub struct ModuleDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   name : ModuleName
   body : ModuleBody?
 }
-pub fn ModuleDecl::new(TopLevelModifiers, ModuleName, ModuleBody?) -> Self
+pub fn ModuleDecl::new(String?, TopLevelModifiers, ModuleName, ModuleBody?) -> Self
 pub impl Eq for ModuleDecl
 pub impl Show for ModuleDecl
 
@@ -1011,6 +1022,7 @@ pub enum ParseErrorKind {
   ForAwaitOnlyInModule
   AwaitUsingOnlyInModule
   IdentifierAfterNumericLiteral
+  NumericSeparatorAtEnd
   InvalidChar(Char)
   UnterminatedString
   InvalidSlice(end~ : Int)
@@ -1048,6 +1060,8 @@ pub struct Parser {
   mut top_level_await_range : (Int, Int)?
   mut for_await_range : (Int, Int)?
   mut await_using_range : (Int, Int)?
+  mut pending_doc_comment : String?
+  mut allow_doc_comments : Bool
 }
 pub fn Parser::new(String, script_kind? : ScriptKind, is_module? : Bool) -> Self raise ParseError
 pub fn Parser::parse_source_file(Self, String, String) -> SourceFile raise ParseError
@@ -1087,6 +1101,7 @@ pub impl Eq for PropertyAssignment
 pub impl Show for PropertyAssignment
 
 pub struct PropertyDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : ClassMemberModifiers
   name : PropertyName
@@ -1095,7 +1110,7 @@ pub struct PropertyDecl {
   type_node : TypeNode?
   initializer : Expr?
 }
-pub fn PropertyDecl::new(NodeArray[Expr]?, ClassMemberModifiers, PropertyName, Bool, Bool, TypeNode?, Expr?) -> Self
+pub fn PropertyDecl::new(String?, NodeArray[Expr]?, ClassMemberModifiers, PropertyName, Bool, Bool, TypeNode?, Expr?) -> Self
 pub impl Eq for PropertyDecl
 pub impl Show for PropertyDecl
 
@@ -1110,12 +1125,13 @@ pub impl Eq for PropertyName
 pub impl Show for PropertyName
 
 pub struct PropertySignature {
+  doc_comment : String?
   is_readonly : Bool
   name : PropertyName
   is_optional : Bool
   type_node : TypeNode?
 }
-pub fn PropertySignature::new(Bool, PropertyName, Bool, TypeNode?) -> Self
+pub fn PropertySignature::new(String?, Bool, PropertyName, Bool, TypeNode?) -> Self
 pub impl Eq for PropertySignature
 pub impl Show for PropertySignature
 
@@ -1178,13 +1194,14 @@ pub impl Eq for ScriptTarget
 pub impl Show for ScriptTarget
 
 pub struct SetAccessorDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : ClassMemberModifiers
   name : PropertyName
   parameters : NodeArray[ParameterDecl]
   body : Array[Stmt]?
 }
-pub fn SetAccessorDecl::new(NodeArray[Expr]?, ClassMemberModifiers, PropertyName, NodeArray[ParameterDecl], Array[Stmt]?) -> Self
+pub fn SetAccessorDecl::new(String?, NodeArray[Expr]?, ClassMemberModifiers, PropertyName, NodeArray[ParameterDecl], Array[Stmt]?) -> Self
 pub impl Eq for SetAccessorDecl
 pub impl Show for SetAccessorDecl
 
@@ -1388,12 +1405,13 @@ pub impl Eq for TupleElement
 pub impl Show for TupleElement
 
 pub struct TypeAliasDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   name : Identifier
   type_parameters : NodeArray[TypeParameterDecl]?
   type_node : TypeNode
 }
-pub fn TypeAliasDecl::new(TopLevelModifiers, Identifier, NodeArray[TypeParameterDecl]?, TypeNode) -> Self
+pub fn TypeAliasDecl::new(String?, TopLevelModifiers, Identifier, NodeArray[TypeParameterDecl]?, TypeNode) -> Self
 pub impl Eq for TypeAliasDecl
 pub impl Show for TypeAliasDecl
 
@@ -1573,10 +1591,11 @@ pub impl Eq for VariableDeclKind
 pub impl Show for VariableDeclKind
 
 pub struct VariableStmt {
+  doc_comment : String?
   modifiers : NodeArray[ModifierKind]?
   declaration_list : NodeArray[VariableDecl]
 }
-pub fn VariableStmt::new(NodeArray[ModifierKind]?, NodeArray[VariableDecl]) -> Self
+pub fn VariableStmt::new(String?, NodeArray[ModifierKind]?, NodeArray[VariableDecl]) -> Self
 pub impl Eq for VariableStmt
 pub impl Show for VariableStmt
 

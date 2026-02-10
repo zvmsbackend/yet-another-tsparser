@@ -90,6 +90,7 @@ pub fn TypeParameterDecl::new(
 ///|
 /// Function Decl
 pub struct FunctionDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   is_async : Bool
   is_generator : Bool
@@ -102,6 +103,7 @@ pub struct FunctionDecl {
 
 ///|
 pub fn FunctionDecl::new(
+  doc_comment : String?,
   modifiers : TopLevelModifiers,
   is_async : Bool,
   is_generator : Bool,
@@ -112,6 +114,7 @@ pub fn FunctionDecl::new(
   body : Array[Stmt]?,
 ) -> FunctionDecl {
   {
+    doc_comment,
     modifiers,
     is_async,
     is_generator,
@@ -126,6 +129,7 @@ pub fn FunctionDecl::new(
 ///|
 /// Class Decl
 pub struct ClassDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : TopLevelModifiers
   name : Identifier?
@@ -136,6 +140,7 @@ pub struct ClassDecl {
 
 ///|
 pub fn ClassDecl::new(
+  doc_comment : String?,
   decorators : NodeArray[Expr]?,
   modifiers : TopLevelModifiers,
   name : Identifier?,
@@ -143,7 +148,15 @@ pub fn ClassDecl::new(
   heritage_clauses : NodeArray[HeritageClause]?,
   members : NodeArray[ClassElement],
 ) -> ClassDecl {
-  { decorators, modifiers, name, type_parameters, heritage_clauses, members }
+  {
+    doc_comment,
+    decorators,
+    modifiers,
+    name,
+    type_parameters,
+    heritage_clauses,
+    members,
+  }
 }
 
 ///|
@@ -190,6 +203,7 @@ pub enum ClassElement {
 
 ///|
 pub struct PropertyDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : ClassMemberModifiers
   name : PropertyName
@@ -201,6 +215,7 @@ pub struct PropertyDecl {
 
 ///|
 pub fn PropertyDecl::new(
+  doc_comment : String?,
   decorators : NodeArray[Expr]?,
   modifiers : ClassMemberModifiers,
   name : PropertyName,
@@ -210,6 +225,7 @@ pub fn PropertyDecl::new(
   initializer : Expr?,
 ) -> PropertyDecl {
   {
+    doc_comment,
     decorators,
     modifiers,
     name,
@@ -222,6 +238,7 @@ pub fn PropertyDecl::new(
 
 ///|
 pub struct MethodDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : ClassMemberModifiers
   is_generator : Bool
@@ -235,6 +252,7 @@ pub struct MethodDecl {
 
 ///|
 pub fn MethodDecl::new(
+  doc_comment : String?,
   decorators : NodeArray[Expr]?,
   modifiers : ClassMemberModifiers,
   is_generator : Bool,
@@ -246,6 +264,7 @@ pub fn MethodDecl::new(
   body : Array[Stmt]?,
 ) -> MethodDecl {
   {
+    doc_comment,
     decorators,
     modifiers,
     is_generator,
@@ -260,6 +279,7 @@ pub fn MethodDecl::new(
 
 ///|
 pub struct ConstructorDecl {
+  doc_comment : String?
   modifiers : ClassMemberModifiers
   parameters : NodeArray[ParameterDecl]
   body : Array[Stmt]?
@@ -267,15 +287,17 @@ pub struct ConstructorDecl {
 
 ///|
 pub fn ConstructorDecl::new(
+  doc_comment : String?,
   modifiers : ClassMemberModifiers,
   parameters : NodeArray[ParameterDecl],
   body : Array[Stmt]?,
 ) -> ConstructorDecl {
-  { modifiers, parameters, body }
+  { doc_comment, modifiers, parameters, body }
 }
 
 ///|
 pub struct GetAccessorDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : ClassMemberModifiers
   name : PropertyName
@@ -286,6 +308,7 @@ pub struct GetAccessorDecl {
 
 ///|
 pub fn GetAccessorDecl::new(
+  doc_comment : String?,
   decorators : NodeArray[Expr]?,
   modifiers : ClassMemberModifiers,
   name : PropertyName,
@@ -293,11 +316,12 @@ pub fn GetAccessorDecl::new(
   type_node : TypeNode?,
   body : Array[Stmt]?,
 ) -> GetAccessorDecl {
-  { decorators, modifiers, name, parameters, type_node, body }
+  { doc_comment, decorators, modifiers, name, parameters, type_node, body }
 }
 
 ///|
 pub struct SetAccessorDecl {
+  doc_comment : String?
   decorators : NodeArray[Expr]?
   modifiers : ClassMemberModifiers
   name : PropertyName
@@ -307,13 +331,14 @@ pub struct SetAccessorDecl {
 
 ///|
 pub fn SetAccessorDecl::new(
+  doc_comment : String?,
   decorators : NodeArray[Expr]?,
   modifiers : ClassMemberModifiers,
   name : PropertyName,
   parameters : NodeArray[ParameterDecl],
   body : Array[Stmt]?,
 ) -> SetAccessorDecl {
-  { decorators, modifiers, name, parameters, body }
+  { doc_comment, decorators, modifiers, name, parameters, body }
 }
 
 ///|
@@ -345,6 +370,7 @@ pub fn ClassStaticBlockDecl::new(body : Array[Stmt]) -> ClassStaticBlockDecl {
 ///|
 /// Type elements for interfaces and type literals
 pub struct PropertySignature {
+  doc_comment : String?
   is_readonly : Bool
   name : PropertyName
   is_optional : Bool
@@ -353,16 +379,18 @@ pub struct PropertySignature {
 
 ///|
 pub fn PropertySignature::new(
+  doc_comment : String?,
   is_readonly : Bool,
   name : PropertyName,
   is_optional : Bool,
   type_node : TypeNode?,
 ) -> PropertySignature {
-  { is_readonly, name, is_optional, type_node }
+  { doc_comment, is_readonly, name, is_optional, type_node }
 }
 
 ///|
 pub struct MethodSignature {
+  doc_comment : String?
   name : PropertyName
   is_optional : Bool
   type_parameters : NodeArray[TypeParameterDecl]?
@@ -372,13 +400,14 @@ pub struct MethodSignature {
 
 ///|
 pub fn MethodSignature::new(
+  doc_comment : String?,
   name : PropertyName,
   is_optional : Bool,
   type_parameters : NodeArray[TypeParameterDecl]?,
   parameters : NodeArray[ParameterDecl],
   type_node : TypeNode?,
 ) -> MethodSignature {
-  { name, is_optional, type_parameters, parameters, type_node }
+  { doc_comment, name, is_optional, type_parameters, parameters, type_node }
 }
 
 ///|
@@ -428,6 +457,7 @@ pub enum TypeElement {
 ///|
 /// Interface Decl
 pub struct InterfaceDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   name : Identifier
   type_parameters : NodeArray[TypeParameterDecl]?
@@ -437,18 +467,20 @@ pub struct InterfaceDecl {
 
 ///|
 pub fn InterfaceDecl::new(
+  doc_comment : String?,
   modifiers : TopLevelModifiers,
   name : Identifier,
   type_parameters : NodeArray[TypeParameterDecl]?,
   heritage_clauses : NodeArray[HeritageClause]?,
   members : NodeArray[TypeElement],
 ) -> InterfaceDecl {
-  { modifiers, name, type_parameters, heritage_clauses, members }
+  { doc_comment, modifiers, name, type_parameters, heritage_clauses, members }
 }
 
 ///|
 /// Type alias Decl
 pub struct TypeAliasDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   name : Identifier
   type_parameters : NodeArray[TypeParameterDecl]?
@@ -457,17 +489,19 @@ pub struct TypeAliasDecl {
 
 ///|
 pub fn TypeAliasDecl::new(
+  doc_comment : String?,
   modifiers : TopLevelModifiers,
   name : Identifier,
   type_parameters : NodeArray[TypeParameterDecl]?,
   type_node : TypeNode,
 ) -> TypeAliasDecl {
-  { modifiers, name, type_parameters, type_node }
+  { doc_comment, modifiers, name, type_parameters, type_node }
 }
 
 ///|
 /// Enum Decl
 pub struct EnumDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   name : Identifier
   members : NodeArray[EnumMember]
@@ -475,27 +509,34 @@ pub struct EnumDecl {
 
 ///|
 pub fn EnumDecl::new(
+  doc_comment : String?,
   modifiers : TopLevelModifiers,
   name : Identifier,
   members : NodeArray[EnumMember],
 ) -> EnumDecl {
-  { modifiers, name, members }
+  { doc_comment, modifiers, name, members }
 }
 
 ///|
 pub struct EnumMember {
+  doc_comment : String?
   name : PropertyName
   initializer : Expr?
 } derive(Eq, Show)
 
 ///|
-pub fn EnumMember::new(name : PropertyName, initializer : Expr?) -> EnumMember {
-  { name, initializer }
+pub fn EnumMember::new(
+  doc_comment : String?,
+  name : PropertyName,
+  initializer : Expr?,
+) -> EnumMember {
+  { doc_comment, name, initializer }
 }
 
 ///|
 /// Module/Namespace Decl
 pub struct ModuleDecl {
+  doc_comment : String?
   modifiers : TopLevelModifiers
   name : ModuleName
   body : ModuleBody?
@@ -503,11 +544,12 @@ pub struct ModuleDecl {
 
 ///|
 pub fn ModuleDecl::new(
+  doc_comment : String?,
   modifiers : TopLevelModifiers,
   name : ModuleName,
   body : ModuleBody?,
 ) -> ModuleDecl {
-  { modifiers, name, body }
+  { doc_comment, modifiers, name, body }
 }
 
 ///|
@@ -759,16 +801,18 @@ pub enum StmtKind {
 
 ///|
 pub struct VariableStmt {
+  doc_comment : String?
   modifiers : NodeArray[ModifierKind]?
   declaration_list : NodeArray[VariableDecl]
 } derive(Eq, Show)
 
 ///|
 pub fn VariableStmt::new(
+  doc_comment : String?,
   modifiers : NodeArray[ModifierKind]?,
   declaration_list : NodeArray[VariableDecl],
 ) -> VariableStmt {
-  { modifiers, declaration_list }
+  { doc_comment, modifiers, declaration_list }
 }
 
 ///|
