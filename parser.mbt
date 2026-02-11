@@ -1994,10 +1994,10 @@ fn Parser::parse_conditional_type(self : Parser) -> TypeNode raise ParseError {
 fn Parser::parse_union_type(self : Parser) -> TypeNode raise ParseError {
   let types : Array[TypeNode] = []
   types.push(self.parse_intersection_type())
-  while {
+  while ({
           self.skip_doc_comments_in_expr()
           self.at(LexKind::Bar)
-        } {
+        }) {
     self.advance() |> ignore
     types.push(self.parse_intersection_type())
   }
@@ -2017,10 +2017,10 @@ fn Parser::parse_union_type(self : Parser) -> TypeNode raise ParseError {
 fn Parser::parse_intersection_type(self : Parser) -> TypeNode raise ParseError {
   let types : Array[TypeNode] = []
   types.push(self.parse_type_operator())
-  while {
+  while ({
           self.skip_doc_comments_in_expr()
           self.at(LexKind::Ampersand)
-        } {
+        }) {
     self.advance() |> ignore
     types.push(self.parse_type_operator())
   }
@@ -3199,10 +3199,10 @@ fn Parser::parse_entity_name(
 ) -> (EntityName, Int) raise ParseError {
   let mut current = EntityName::Identifier(first)
   let mut end_start = first.span.end
-  while {
+  while ({
           self.skip_doc_comments_in_expr()
           self.at(LexKind::Dot)
-        } {
+        }) {
     self.advance() |> ignore
     let right = self.parse_identifier()
     end_start = right.span.end
@@ -3482,10 +3482,10 @@ fn Parser::parse_type_literal_members(
     match name {
       PropertyName::Identifier(id) =>
         if id.text == "get" &&
-          {
+          ({
             self.skip_doc_comments_in_expr()
             !self.at(LexKind::Colon)
-          } {
+          }) {
           let accessor_name = self.parse_property_name()
           let params = self.parse_parameter_list(false)
           let type_node = if self.at(LexKind::Colon) {
@@ -3509,10 +3509,10 @@ fn Parser::parse_type_literal_members(
           )
           continue
         } else if id.text == "set" &&
-          {
+          ({
             self.skip_doc_comments_in_expr()
             !self.at(LexKind::Colon)
-          } {
+          }) {
           let accessor_name = self.parse_property_name()
           let params = self.parse_parameter_list(false)
           members.push(
@@ -3684,10 +3684,10 @@ fn Parser::parse_object_literal(
           match prop_name {
             PropertyName::Identifier(id) =>
               if id.text == "get" &&
-                {
+                ({
                   self.skip_doc_comments_in_expr()
                   !self.at(LexKind::Colon)
-                } {
+                }) {
                 let accessor_name = self.parse_property_name()
                 let params = self.parse_parameter_list(false)
                 let type_node = if self.at(LexKind::Colon) {
@@ -3720,10 +3720,10 @@ fn Parser::parse_object_literal(
                 }
                 continue
               } else if id.text == "set" &&
-                {
+                ({
                   self.skip_doc_comments_in_expr()
                   !self.at(LexKind::Colon)
-                } {
+                }) {
                 let accessor_name = self.parse_property_name()
                 let params = self.parse_parameter_list(false)
                 let (body, _) = self.parse_block_with_function_context(
@@ -3761,10 +3761,10 @@ fn Parser::parse_object_literal(
               PropertyAssignment::new(prop_name, value),
             ),
           )
-        } else if {
+        } else if ({
             self.skip_doc_comments_in_expr()
             self.at(LexKind::LParen)
-          } {
+          }) {
           let params = self.parse_parameter_list(false)
           let type_node = if self.at(LexKind::Colon) {
             self.advance() |> ignore
@@ -4127,10 +4127,10 @@ fn Parser::parse_class_elements(
       match prop_name {
         PropertyName::Identifier(id) =>
           if id.text == "get" &&
-            {
+            ({
               self.skip_doc_comments_in_expr()
               !self.at(LexKind::Colon)
-            } {
+            }) {
             let accessor_name = self.parse_property_name()
             let params = self.parse_parameter_list(false)
             let type_node = if self.at(LexKind::Colon) {
@@ -4161,10 +4161,10 @@ fn Parser::parse_class_elements(
             members.push(ClassElement::GetAccessor(get_decl))
             continue
           } else if id.text == "set" &&
-            {
+            ({
               self.skip_doc_comments_in_expr()
               !self.at(LexKind::Colon)
-            } {
+            }) {
             let accessor_name = self.parse_property_name()
             let params = self.parse_parameter_list(false)
             let body = if self.at(LexKind::LBrace) {
